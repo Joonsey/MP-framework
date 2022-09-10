@@ -8,13 +8,11 @@ def move_rect(data: list):
     current_loc = (data[0],data[1])
     return str((int(current_loc[0]) +10, int(current_loc[1])))
 
-
 net_codes = {
     # expected structure of data:
     # op_code / op_identifier : function call
     "op_move": move_rect
 }
-
 
 class Network_server:
     def __init__(self) -> None:
@@ -53,8 +51,8 @@ class Network_server:
                 conn.sendall(reply)
             except:
                 print("interupted by keyboard")
-                exit(1)
                 break
+
 
         print('Lost connection')
         conn.close()
@@ -68,9 +66,8 @@ class Network_server:
             except:
                 self.sock.close()
                 print("error handled succesfully")
-                exit(1)
                 break
-
+        exit(1)
 
 if __name__ == "__main__":
     server = Network_server()
