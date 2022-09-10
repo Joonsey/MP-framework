@@ -4,6 +4,18 @@ from _thread import start_new_thread
 
 decoder = 'utf-8'
 
+def move_rect(data: list):
+    current_loc = (data[0],data[1])
+    return str((int(current_loc[0]) +10, int(current_loc[1])))
+
+
+net_codes = {
+    # expected structure of data:
+    # op_code / op_identifier : function call
+    "op_move": move_rect
+}
+
+
 class Network_server:
     def __init__(self) -> None:
         self.ip = "localhost"
@@ -16,7 +28,15 @@ class Network_server:
 
     def handle_data(self, data) -> bytes:
         print("incomming data:", data)
-        return b""
+        parsed_data = data.split(",")
+        print(parsed_data)
+
+        unit = parsed_data[0]
+        operation = net_codes[parsed_data[1]]
+        arguments = parsed_data[2:]
+        response = operation(arguments)
+
+        return response.encode(decoder)
 
     def threaded_client(self, conn):
         identifier = uuid.uuid1().__str__()
@@ -31,8 +51,9 @@ class Network_server:
                 else:
                     reply = self.handle_data(data)
                 conn.sendall(reply)
-            except socket.error as e:
-                print(e)
+            except:
+                print("interupted by keyboard")
+                exit(1)
                 break
 
         print('Lost connection')
@@ -44,16 +65,13 @@ class Network_server:
                 conn, addr = self.sock.accept()
                 print("connected! from :", addr)
                 start_new_thread(self.threaded_client, (conn, ))
-            except Exception as e:
+            except:
                 self.sock.close()
                 print("error handled succesfully")
-                print(e)
                 exit(1)
+                break
 
 
 if __name__ == "__main__":
     server = Network_server()
-    try:
-        server.run()
-    except:
-        server.sock.close()
+    server.run()

@@ -17,7 +17,7 @@ class Network_client:
             self.identifier = response
             return response
         except:
-            pass
+            return False
 
 
     def send(self, data):
