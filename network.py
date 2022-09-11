@@ -1,4 +1,5 @@
 import socket
+import ast
 from _thread import start_new_thread
 decoder = 'utf-8'
 
@@ -7,6 +8,10 @@ def run_in_thread(func):
         start_new_thread(func, k)
     return run
 
+# NETWORK PACKET FORMAT
+# OBJECT LOCATION
+# [IDENTIFIER, LOCATION]
+
 class Network_client:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,7 +19,7 @@ class Network_client:
         self.port = 5555
         self.addr = (self.ip, self.port)
         self.identifier = ""
-        self.responses = ['init']
+        self.responses = {}
 
     def connect(self):
         try:
@@ -40,13 +45,14 @@ class Network_client:
             print("ERROR: please connect to server first")
         else:
             try:
-                self.client.send(str.encode(data))
+                packet = {self.identifier: data}
+                self.client.send(str(packet).encode(decoder))
                 response = self.client.recv(2048).decode(decoder)
-                prev = self.responses.pop()
+                prev = self.responses
                 if response != prev:
-                    self.responses.append(response)
+                    self.responses = ast.literal_eval(response)
                 else:
-                    self.responses.append(prev)
+                    self.responses = prev
 
             except socket.error as e:
                 print(e)

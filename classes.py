@@ -21,6 +21,9 @@ class Player:
         self.update()
         self.sprite.draw()
 
+    def _draw(self):
+        self.sprite.draw()
+
     def input_handler(self, keyboard, dt):
         if keyboard[key.D]:
             self.x += SPEED
@@ -32,4 +35,4 @@ class Player:
             self.y -= SPEED
 
     def network_position(self):
-        return "%d, %d" % (self.x, self.y)
+        return [self.x, self.y]

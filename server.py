@@ -1,4 +1,5 @@
 import socket
+import ast
 import uuid
 from _thread import start_new_thread
 
@@ -18,12 +19,17 @@ class Network_server:
 
     def handle_data(self, identifier, data) -> bytes:
         print("incomming data:", data)
-        self.all_locations[identifier] = data
+        data = ast.literal_eval(data)
+        #data = data.split(":")
+        #identifier = data[0]
+        #info = data [1]
+        self.all_locations.update(data)
+
         locations = []
-        for key in self.all_locations.keys():
-            location_data = self.all_locations[key]
-            locations.append(location_data)
-        response = str(locations).encode(decoder)
+        for identifier in self.all_locations.keys():
+            info = self.all_locations[identifier]
+            locations.append(info)
+        response = str(self.all_locations).encode(decoder)
         return response
 
     def threaded_client(self, conn):
@@ -35,6 +41,7 @@ class Network_server:
                 data = conn.recv(2048).decode(decoder)
                 print("incomming data:", data)
                 if not data:
+                    self.all_locations.pop(identifier)
                     print('Disconnected')
                     break
                 else:
