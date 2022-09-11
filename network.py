@@ -1,6 +1,11 @@
 import socket
+from _thread import start_new_thread
 decoder = 'utf-8'
 
+def run_in_thead(func):
+    def run(*k, **kw):
+        start_new_thread(func, k)
+    return run
 
 class Network_client:
     def __init__(self):
@@ -20,12 +25,12 @@ class Network_client:
             return False
 
 
+    @run_in_thead
     def send(self, data):
         if self.identifier == "":
             print("ERROR: please connect to server first")
         else:
             try:
-                data = self.identifier + "," + data
                 self.client.send(str.encode(data))
                 return self.client.recv(2048).decode(decoder)
 

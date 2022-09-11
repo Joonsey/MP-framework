@@ -43,14 +43,17 @@ class Network_server:
         while True:
             try:
                 data = conn.recv(2048).decode(decoder)
+                print("incomming data:", data)
                 if not data:
                     print('Disconnected')
                     break
                 else:
-                    reply = self.handle_data(data)
+                    #reply = self.handle_data(data)
+                    pass
                 conn.sendall(reply)
-            except:
-                print("interupted by keyboard")
+            except socket.error as e:
+                print("error occured")
+                print(e)
                 break
 
 
