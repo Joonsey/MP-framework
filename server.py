@@ -4,37 +4,27 @@ from _thread import start_new_thread
 
 decoder = 'utf-8'
 
-def move_rect(data: list):
-    current_loc = (data[0],data[1])
-    return str((int(current_loc[0]) +10, int(current_loc[1])))
-
-net_codes = {
-    # expected structure of data:
-    # op_code / op_identifier : function call
-    "op_move": move_rect
-}
 
 class Network_server:
     def __init__(self) -> None:
         self.ip = "localhost"
         self.port = 5555
         self.addr = (self.ip, self.port)
+        self.all_locations = {}
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(self.addr)
         self.sock.listen()
 
-    def handle_data(self, data) -> bytes:
+    def handle_data(self, identifier, data) -> bytes:
         print("incomming data:", data)
-        parsed_data = data.split(",")
-        print(parsed_data)
-
-        unit = parsed_data[0]
-        operation = net_codes[parsed_data[1]]
-        arguments = parsed_data[2:]
-        response = operation(arguments)
-
-        return response.encode(decoder)
+        self.all_locations[identifier] = data
+        locations = []
+        for key in self.all_locations.keys():
+            location_data = self.all_locations[key]
+            locations.append(location_data)
+        response = str(locations).encode(decoder)
+        return response
 
     def threaded_client(self, conn):
         identifier = uuid.uuid1().__str__()
@@ -48,8 +38,7 @@ class Network_server:
                     print('Disconnected')
                     break
                 else:
-                    #reply = self.handle_data(data)
-                    pass
+                    reply = self.handle_data(identifier, data)
                 conn.sendall(reply)
             except socket.error as e:
                 print("error occured")

@@ -2,7 +2,7 @@ import socket
 from _thread import start_new_thread
 decoder = 'utf-8'
 
-def run_in_thead(func):
+def run_in_thread(func):
     def run(*k, **kw):
         start_new_thread(func, k)
     return run
@@ -14,6 +14,7 @@ class Network_client:
         self.port = 5555
         self.addr = (self.ip, self.port)
         self.identifier = ""
+        self.responses = ['init']
 
     def connect(self):
         try:
@@ -24,15 +25,28 @@ class Network_client:
         except:
             return False
 
+    @run_in_thread
+    def open_recieve_thread(self):
+        try:
+            response = self.client.recv(2048).decode(decoder)
+            return response
+        except:
+            pass
 
-    @run_in_thead
+
+    @run_in_thread
     def send(self, data):
         if self.identifier == "":
             print("ERROR: please connect to server first")
         else:
             try:
                 self.client.send(str.encode(data))
-                return self.client.recv(2048).decode(decoder)
+                response = self.client.recv(2048).decode(decoder)
+                prev = self.responses.pop()
+                if response != prev:
+                    self.responses.append(response)
+                else:
+                    self.responses.append(prev)
 
             except socket.error as e:
                 print(e)
