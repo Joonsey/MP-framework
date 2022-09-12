@@ -10,7 +10,15 @@ def run_in_thread(func):
 
 # NETWORK PACKET FORMAT
 # OBJECT LOCATION
-# [IDENTIFIER, LOCATION]
+"""
+{IDENTIFIER:
+    {
+        location: [x,y],
+        color: (r,g,b),
+        state: ?,
+    }
+}
+"""
 
 class Network_client:
     def __init__(self):
@@ -45,7 +53,8 @@ class Network_client:
             print("ERROR: please connect to server first")
         else:
             try:
-                packet = {self.identifier: data}
+                packet = {}
+                packet[self.identifier] = data
                 self.client.send(str(packet).encode(decoder))
                 response = self.client.recv(2048).decode(decoder)
                 prev = self.responses

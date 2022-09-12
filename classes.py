@@ -33,3 +33,9 @@ class Player:
 
     def network_position(self):
         return [self.x, self.y]
+
+
+    def change_color(self, color: tuple):
+        self.sprite.color = color
+        self.sprite._update_color()
+

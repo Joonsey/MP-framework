@@ -1,1 +1,6 @@
-pyglet
+Cython     0.29.32
+future     0.18.2
+pip        20.3.4
+pyglet     1.5.0
+setuptools 44.1.1
+wheel      0.37.1
