@@ -3,11 +3,12 @@ from pyglet import image
 
 from network import Network_client
 from classes import Player
-from tools import ASSET_DICT
+from tools import ASSET_DICT, PACKET_SIZE
 
 WIDTH = 1080
 HEIGHT = 720
-FPS = 60
+FPS = 120
+TPS = 20
 NOT_PLAYER_COLOR = (10,223,15)
 
 player_img = ASSET_DICT['test_img']
@@ -24,7 +25,7 @@ class Game_client(pyglet.window.Window):
         self.push_handlers(self.keyboard)
         self.npcs = {}
 
-        pyglet.clock.schedule_interval(self.update, 1/FPS)
+        pyglet.clock.schedule_interval(self.update, 1/TPS)
         pyglet.clock.schedule_interval(self.draw, 1/FPS)
 
         response = self.network.connect() # connecting to server

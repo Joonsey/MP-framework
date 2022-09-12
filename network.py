@@ -2,6 +2,7 @@ import socket
 import ast
 from _thread import start_new_thread
 decoder = 'utf-8'
+PACKET_SIZE = 10240
 
 def run_in_thread(func):
     def run(*k, **kw):
@@ -24,7 +25,7 @@ class Network_client:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip = "localhost"
-        self.port = 5555
+        self.port = 42069
         self.addr = (self.ip, self.port)
         self.identifier = ""
         self.responses = {}
@@ -32,7 +33,7 @@ class Network_client:
     def connect(self):
         try:
             self.client.connect(self.addr)
-            response = self.client.recv(2048).decode(decoder)
+            response = self.client.recv(PACKET_SIZE).decode(decoder)
             self.identifier = response
             return response
         except:
@@ -41,7 +42,7 @@ class Network_client:
     @run_in_thread
     def open_recieve_thread(self):
         try:
-            response = self.client.recv(2048).decode(decoder)
+            response = self.client.recv(PACKET_SIZE).decode(decoder)
             return response
         except:
             pass
@@ -59,7 +60,11 @@ class Network_client:
                 response = self.client.recv(2048).decode(decoder)
                 prev = self.responses
                 if response != prev:
-                    self.responses = ast.literal_eval(response)
+                    try:
+                        self.responses = ast.literal_eval(response)
+                    except:
+                        print("server lag causing buffer to be filled twice!")
+                        print(response)
                 else:
                     self.responses = prev
 
