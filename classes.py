@@ -13,16 +13,13 @@ class Player:
         self.x = x
         self.y = y
         self.sprite = pyglet.sprite.Sprite(img, x, y, batch=batch)
-    def update(self):
+
+    def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
 
-    def draw(self, keyboard, dt):
+    def update(self, keyboard, dt):
         self.input_handler(keyboard, dt)
-        self.update()
-        self.sprite.draw()
-
-    def _draw(self):
-        self.sprite.draw()
+        self.update_pos()
 
     def input_handler(self, keyboard, dt):
         if keyboard[key.D]:

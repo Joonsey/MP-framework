@@ -35,18 +35,21 @@ class Game_client(pyglet.window.Window):
 
     def draw(self, dt):
         self.clear()
-        self.player.draw(self.keyboard, dt)
+        self.player.update(self.keyboard, dt)
         self.network.send(self.player.network_position())
 
         for npc in self.network.responses.keys():
             coords = self.network.responses[npc]
             if npc not in self.npcs:
-                self.npcs[npc] = [coords, Player(player_img, coords[0], coords[1], batch = self.batch)]
+                if npc != self.network.identifier:
+                    pass
+                else:
+                    self.npcs[npc] = [coords, Player(player_img, coords[0], coords[1], batch = self.batch)]
             else:
                 player = self.npcs[npc][1]
                 player.x = coords[0]
                 player.y = coords[1]
-                player.update()
+                player.update_pos()
 
 
         self.batch.draw()

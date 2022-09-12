@@ -18,11 +18,7 @@ class Network_server:
         self.sock.listen()
 
     def handle_data(self, identifier, data) -> bytes:
-        print("incomming data:", data)
         data = ast.literal_eval(data)
-        #data = data.split(":")
-        #identifier = data[0]
-        #info = data [1]
         self.all_locations.update(data)
 
         locations = []
@@ -39,7 +35,6 @@ class Network_server:
         while True:
             try:
                 data = conn.recv(2048).decode(decoder)
-                print("incomming data:", data)
                 if not data:
                     self.all_locations.pop(identifier)
                     print('Disconnected')
@@ -53,10 +48,11 @@ class Network_server:
                 break
 
 
-        print('Lost connection')
+        print('Lost connection width:',identifier)
         conn.close()
 
     def run(self):
+        print("server is listening...\n")
         while True:
             try:
                 conn, addr = self.sock.accept()
