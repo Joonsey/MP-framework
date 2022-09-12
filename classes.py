@@ -13,19 +13,32 @@ class Player:
         self.x = x
         self.y = y
         self.sprite = pyglet.sprite.Sprite(img, x, y, batch=batch)
+        self.direction = 0
+        self.new_direction = 0
+        self.images = [img.get_transform(True), img]
+
 
     def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
 
     def update(self, keyboard, dt):
         self.input_handler(keyboard, dt)
+        self.change_direction(self.new_direction)
         self.update_pos()
+        
+    def change_direction(self, direction):
+        if direction != self.direction:
+            self.direction = direction
+            self.sprite.image = self.images[direction]
+
 
     def input_handler(self, keyboard, dt):
         if keyboard[key.D]:
             self.x += SPEED
+            self.new_direction = 1
         elif keyboard[key.A]:
             self.x -= SPEED
+            self.new_direction = 0
         if keyboard[key.W]:
             self.y += SPEED
         elif keyboard[key.S]:

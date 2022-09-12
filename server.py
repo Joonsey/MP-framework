@@ -2,8 +2,8 @@ import socket
 import ast
 import uuid
 from _thread import start_new_thread
-
 from tools import PACKET_SIZE
+
 
 decoder = 'utf-8'
 

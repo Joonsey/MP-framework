@@ -12,6 +12,8 @@ TPS = 20
 NOT_PLAYER_COLOR = (10,223,15)
 
 player_img = ASSET_DICT['test_img']
+#player_img = ASSET_DICT['test_anim']
+player_img = ASSET_DICT['test_img_spritesheet']
 
 class Game_client(pyglet.window.Window):
     def __init__(self) -> None:
@@ -39,7 +41,8 @@ class Game_client(pyglet.window.Window):
 
         data = {
             'location': self.player.network_position(),
-            'color': NOT_PLAYER_COLOR
+            'color': NOT_PLAYER_COLOR,
+            'direction': self.player.new_direction
         }
         self.network.send(data)
 
@@ -47,6 +50,7 @@ class Game_client(pyglet.window.Window):
         for npc in self.network.responses.keys():
             coords = self.network.responses[npc]['location']
             color = self.network.responses[npc]['color']
+            direction = self.network.responses[npc]['direction']
             if npc not in self.npcs:
                 if npc == self.network.identifier:
                     pass
@@ -58,6 +62,7 @@ class Game_client(pyglet.window.Window):
                 player.y = coords[1]
                 player.change_color(color)
                 player.update_pos()
+                player.change_direction(direction)
 
     def draw(self, dt):
         self.clear()

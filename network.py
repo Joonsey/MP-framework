@@ -25,7 +25,7 @@ class Network_client:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip = "localhost"
-        self.port = 42069
+        self.port = 5555
         self.addr = (self.ip, self.port)
         self.identifier = ""
         self.responses = {}
