@@ -41,7 +41,7 @@ class Game_client(pyglet.window.Window):
         for npc in self.network.responses.keys():
             coords = self.network.responses[npc]
             if npc not in self.npcs:
-                if npc != self.network.identifier:
+                if npc == self.network.identifier:
                     pass
                 else:
                     self.npcs[npc] = [coords, Player(player_img, coords[0], coords[1], batch = self.batch)]
