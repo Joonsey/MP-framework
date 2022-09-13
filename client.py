@@ -7,9 +7,11 @@ from tools import ASSET_DICT, PACKET_SIZE
 
 WIDTH = 1080
 HEIGHT = 720
-FPS = 120
-TPS = 20
+FPS  = 120
+TPS  = 20
 NOT_PLAYER_COLOR = (10,223,15)
+IP   = "localhost"
+PORT = 5555
 
 player_img = ASSET_DICT['test_img']
 #player_img = ASSET_DICT['test_anim']
@@ -19,7 +21,7 @@ class Game_client(pyglet.window.Window):
     def __init__(self) -> None:
         super(Game_client, self).__init__()
 
-        self.network = Network_client()
+        self.network = Network_client(IP, PORT)
         self.set_size(WIDTH, HEIGHT)
         self.player_batch = pyglet.graphics.Batch()
         self.player = Player(player_img, 20, 30, self.player_batch)
