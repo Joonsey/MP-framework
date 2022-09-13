@@ -2,7 +2,7 @@ import socket
 import ast
 from _thread import start_new_thread
 decoder = 'utf-8'
-PACKET_SIZE = 10240
+from tools import PACKET_SIZE, GLOBAL_SERVER_IP
 
 def run_in_thread(func):
     def run(*k, **kw):
@@ -24,8 +24,8 @@ def run_in_thread(func):
 class Network_client:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ip = "localhost"
-        self.port = 5555
+        self.ip = GLOBAL_SERVER_IP
+        self.port = 42069 #CHANGE THIS DURING DEV/PROD
         self.addr = (self.ip, self.port)
         self.identifier = ""
         self.responses = {}
