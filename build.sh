@@ -1,4 +1,4 @@
 python -m pip install -r requirements.txt
-pyinstaller client.py --noconfirm
-mkdir dist/client/assets
-cp assets/* dist/client/assets/
+python -m pyinstaller client.py --noconfirm -F
+mkdir dist/assets
+cp assets/* dist/assets/
