@@ -19,14 +19,14 @@ from tools import run_in_thread
 
 class Network_client:
     def __init__(self, ip, port):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.addr = (ip, port)
-        self.identifier = ""
+        self.identifier = ''
         self.responses = {}
 
     def connect(self):
         try:
-            self.client.connect(self.addr)
+            self.client.sendto(str.encode(self.identifier), self.addr)
             response = self.client.recv(PACKET_SIZE).decode(decoder)
             self.identifier = response
             return response
@@ -50,7 +50,7 @@ class Network_client:
             try:
                 packet = {}
                 packet[self.identifier] = data
-                self.client.send(str(packet).encode(decoder))
+                self.client.sendto(str(packet).encode(decoder), self.addr)
                 response = self.client.recv(2048).decode(decoder)
                 prev = self.responses
                 if response != prev:
