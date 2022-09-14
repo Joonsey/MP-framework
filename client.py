@@ -1,7 +1,7 @@
-from turtle import window_width
 import pyglet
 from pyglet import image
 import sys
+from sys import argv
 
 from network import Network_client
 from classes import Player
@@ -50,7 +50,7 @@ class Game_client(pyglet.window.Window):
             self.fps.__str__(),
             font_name="new times roman",
             font_size=FONT_SIZE,
-            x = 0, 
+            x = 0,
             y = self.height-FONT_SIZE,
             batch=self.ui_batch
         )
@@ -86,11 +86,11 @@ class Game_client(pyglet.window.Window):
                 player.change_color(color)
                 player.update_pos()
                 player.change_direction(direction)
-        
+
         self.handle_client_inputs(self.keyboard)
 
     def handle_client_inputs(self, keyboard):
-        # TODO 
+        # TODO
         # MAJOR FUCKING ISSUE WITH THESE
 
         if keyboard[pyglet.window.key.Q]:
@@ -102,7 +102,6 @@ class Game_client(pyglet.window.Window):
         elif keyboard[pyglet.window.key.F12]:
             self.set_fullscreen(False if self.fullscreen else True)
 
-        print(keyboard) 
 
     def draw(self, dt):
         self.clear()
@@ -111,5 +110,9 @@ class Game_client(pyglet.window.Window):
 
 
 if __name__ == "__main__":
+    args = len(argv) > 1
+    if args:
+        if argv[1] == '-l':
+            IP = "localhost"
     game = Game_client()
     pyglet.app.run()

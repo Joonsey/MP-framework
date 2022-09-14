@@ -1,4 +1,5 @@
 import socket
+from sys import argv
 import ast
 import uuid
 PACKET_SIZE = 16000
@@ -52,5 +53,9 @@ class Network_server:
         exit(1)
 
 if __name__ == "__main__":
+    args = len(argv) > 1
+    if args:
+        if argv[1] == '-l':
+            IP = "localhost"
     server = Network_server()
     server.run()
