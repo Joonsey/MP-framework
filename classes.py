@@ -44,6 +44,9 @@ class Player:
         elif keyboard[key.S]:
             self.y -= SPEED
 
+
+
+
     def network_position(self):
         return [self.x, self.y]
 

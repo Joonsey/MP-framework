@@ -1,67 +1,51 @@
 import socket
+from sys import argv
 import ast
 import uuid
-from _thread import start_new_thread
 PACKET_SIZE = 16000
-
+IP = "0.0.0.0"
+PORT = 5555
 
 decoder = 'utf-8'
 
 class Network_server:
     def __init__(self) -> None:
-        self.ip = "localhost"
-        self.port = 5555
+        self.ip = IP
+        self.port = PORT
         self.addr = (self.ip, self.port)
         self.all_locations = {}
 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(self.addr)
-        self.sock.listen()
+        #self.sock.listen()
 
-    def handle_data(self, identifier, data) -> bytes:
+    def handle_data(self, data, address):
         try:
-            data = ast.literal_eval(data)
-            self.all_locations.update(data)
-            locations = []
-            for identifier in self.all_locations.keys():
-                info = self.all_locations[identifier]
-                locations.append(info)
-            response = str(self.all_locations).encode(decoder)
+            if data == b"":
+                response = uuid.uuid1().__str__().encode(decoder)
+            else:
+                data = ast.literal_eval(data.decode(decoder))
+                self.all_locations.update(data)
+                locations = []
+                for identifier in self.all_locations.keys():
+                    info = self.all_locations[identifier]
+                    locations.append(info)
+                response = str(self.all_locations).encode(decoder)
             return response
-        except:
-            print(identifier, "didn't parse packet as intended.")
+        except Exception as e:
+            print(e)
+            print(address, "didn't parse packet as intended.")
             pass
-
-    def threaded_client(self, conn):
-        identifier = uuid.uuid1().__str__()
-        conn.send(identifier.encode(decoder))
-        reply = b''
-        while True:
-            try:
-                data = conn.recv(PACKET_SIZE).decode(decoder)
-                if not data:
-                    self.all_locations.pop(identifier)
-                    print('Disconnected')
-                    break
-                else:
-                    reply = self.handle_data(identifier, data)
-                conn.sendall(reply)
-            except socket.error as e:
-                print("error occured")
-                print(e)
-                break
-
-
-        print('Lost connection width:',identifier)
-        conn.close()
 
     def run(self):
         print("server is listening...\n")
         while True:
             try:
-                conn, addr = self.sock.accept()
-                print("connected! from :", addr)
-                start_new_thread(self.threaded_client, (conn, ))
+                response = self.sock.recvfrom(PACKET_SIZE)
+                data = response[0]
+                address = response[1]
+                response = self.handle_data(data, address)
+                self.sock.sendto(response,address)
             except:
                 self.sock.close()
                 print("error handled succesfully")
@@ -69,5 +53,9 @@ class Network_server:
         exit(1)
 
 if __name__ == "__main__":
+    args = len(argv) > 1
+    if args:
+        if argv[1] == '-l':
+            IP = "localhost"
     server = Network_server()
     server.run()
