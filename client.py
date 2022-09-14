@@ -1,5 +1,6 @@
 import pyglet
 from pyglet import image
+import sys
 
 from network import Network_client
 from classes import Player
@@ -11,6 +12,7 @@ FPS  = 120
 TPS  = 20
 NOT_PLAYER_COLOR = (10,223,15)
 IP   = "localhost"
+IP = "52.143.187.171"
 PORT = 5555
 
 player_img = ASSET_DICT['test_img']
@@ -28,6 +30,8 @@ class Game_client(pyglet.window.Window):
         self.keyboard = pyglet.window.key.KeyStateHandler()
         self.push_handlers(self.keyboard)
         self.npcs = {}
+        self.tick = 0
+
 
         pyglet.clock.schedule_interval(self.update, 1/TPS)
         pyglet.clock.schedule_interval(self.draw, 1/FPS)
@@ -39,6 +43,9 @@ class Game_client(pyglet.window.Window):
         """
 
     def update(self, dt):
+        self.tick = pyglet.clock.tick()
+        self.fps = pyglet.clock.get_fps()
+        print(self.fps)
         self.player.update(self.keyboard, dt)
 
         data = {
@@ -65,6 +72,20 @@ class Game_client(pyglet.window.Window):
                 player.change_color(color)
                 player.update_pos()
                 player.change_direction(direction)
+        
+        self.handle_client_inputs(self.keyboard)
+
+    def handle_client_inputs(self, keyboard):
+
+        if keyboard[pyglet.window.key.Q]:
+            sys.exit(0)
+
+        if keyboard[pyglet.window.key.F11]:
+            self.set_fullscreen(True if not self.fullscreen else False)
+
+        if keyboard[pyglet.window.key.F12]:
+            self.set_fullscreen(False if self.fullscreen else True)
+            
 
     def draw(self, dt):
         self.clear()

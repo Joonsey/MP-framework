@@ -2,14 +2,15 @@ import socket
 import ast
 import uuid
 PACKET_SIZE = 16000
-
+IP = "0.0.0.0"
+PORT = 5555
 
 decoder = 'utf-8'
 
 class Network_server:
     def __init__(self) -> None:
-        self.ip = "localhost"
-        self.port = 5555
+        self.ip = IP
+        self.port = PORT
         self.addr = (self.ip, self.port)
         self.all_locations = {}
 

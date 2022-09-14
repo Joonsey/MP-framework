@@ -17,6 +17,17 @@ from tools import run_in_thread
 }
 """
 
+#TODO: NEW PACKET STRUCTURE BASED ON INDEXATION
+"""
+[0-3 : identifier | 4 - 6: location | 7: color | 8+ : special] 
+
+special: kwargs**
+i.e: 
+    - direction
+    - event
+"""
+#NB subject to change
+
 class Network_client:
     def __init__(self, ip, port):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
