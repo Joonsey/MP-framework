@@ -36,6 +36,11 @@ class Network_client:
         self.responses = {}
 
     def connect(self):
+        """
+        Function depricated!
+        network now relies on UDP protocol.
+        this will be renamed and will function as a initial handshake to recieve credentials from server
+        """
         try:
             self.client.sendto(str.encode(self.identifier), self.addr)
             response = self.client.recv(PACKET_SIZE).decode(decoder)

@@ -13,7 +13,6 @@ FPS  = 120
 TPS  = 20
 FONT_SIZE = 36
 NOT_PLAYER_COLOR = (10,223,15)
-IP   = "localhost"
 IP = "52.143.187.171"
 PORT = 5555
 
