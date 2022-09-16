@@ -43,7 +43,11 @@ class Player:
             self.y += SPEED
         elif keyboard[key.S]:
             self.y -= SPEED
-
+        
+        if keyboard[key.E]:
+            #play_sound(max_mekker)
+            pass
+            
 
 
 
