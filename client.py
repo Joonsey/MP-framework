@@ -4,9 +4,11 @@ import sys
 from sys import argv
 
 from network import Network_client
-from classes import Player
+from classes import SPEED, Player
 from tools import ASSET_DICT, PACKET_SIZE
 
+AMOUNT_OF_BYTES_IN_PACKE = 3 #THIS WILL EXPAND AS PACKET SIZE INCREASES
+# SEE NETWORK ln 10:18 -> FOR REFERENCE!
 WIDTH = 1080
 HEIGHT = 720
 FPS  = 120
@@ -37,14 +39,15 @@ class Game_client(pyglet.window.Window):
         self.fps = 0
 
 
-        pyglet.clock.schedule_interval(self.update, 1/TPS)
-        pyglet.clock.schedule_interval(self.draw, 1/FPS)
 
         response = self.network.connect() # connecting to server
         assert response, """
         Response was invalid.
         error connecting to the server. Make sure the server is running
         """
+
+        pyglet.clock.schedule_interval(self.update, 1/TPS)
+        pyglet.clock.schedule_interval(self.draw, 1/FPS)
 
         self.fps_counter_label = pyglet.text.Label(
             self.fps.__str__(),
@@ -55,6 +58,21 @@ class Game_client(pyglet.window.Window):
             batch=self.ui_batch
         )
 
+    def get_players(self):
+        npcs = self.network.responses
+        for i in range(0, len(npcs), AMOUNT_OF_BYTES_IN_PACKET):
+            id = npcs[i]
+            coords = npcs[i+1:i+3]
+            if id.to_bytes(1, 'little') != self.network.identifier and id not in self.npcs.keys():
+                self.npcs[id] = Player(player_img, coords[0] * SPEED, coords[1] * SPEED, batch = self.player_batch)
+            else:
+                try:
+                    player   = self.npcs[id]
+                    player.x = coords[0] * SPEED
+                    player.y = coords[1] * SPEED
+                    player.update_pos()
+                except: pass
+
     def update(self, dt):
         self.tick = pyglet.clock.tick()
         self.fps = pyglet.clock.get_fps()
@@ -62,30 +80,9 @@ class Game_client(pyglet.window.Window):
         self.fps_counter_label.y = self.height - FONT_SIZE
         self.player.update(self.keyboard, dt)
 
-        data = {
-            'location': self.player.network_position(),
-            'color': NOT_PLAYER_COLOR,
-            'direction': self.player.new_direction
-        }
+        data = self.network.identifier + int(self.player.x / SPEED).to_bytes(1,'little') + int(self.player.y / SPEED).to_bytes(1, 'little')
         self.network.send(data)
-
-
-        for npc in self.network.responses.keys():
-            coords = self.network.responses[npc]['location']
-            color = self.network.responses[npc]['color']
-            direction = self.network.responses[npc]['direction']
-            if npc not in self.npcs:
-                if npc == self.network.identifier:
-                    pass
-                else:
-                    self.npcs[npc] = [coords, Player(player_img, coords[0], coords[1], batch = self.player_batch)]
-            else:
-                player   = self.npcs[npc][1]
-                player.x = coords[0]
-                player.y = coords[1]
-                player.change_color(color)
-                player.update_pos()
-                player.change_direction(direction)
+        self.get_players()
 
         self.handle_client_inputs(self.keyboard)
 

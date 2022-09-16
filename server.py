@@ -8,34 +8,46 @@ PORT = 5555
 
 decoder = 'utf-8'
 
+index = 0
+
+def IOTA(force=False):
+    """
+    ENUMERATOR
+    """
+    global index
+    if force:
+        index = 0
+    index += 1
+    return index.to_bytes(1,'big')
+
 class Network_server:
     def __init__(self) -> None:
         self.ip = IP
         self.port = PORT
         self.addr = (self.ip, self.port)
-        self.all_locations = {}
+        self.all_players = {}
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(self.addr)
         #self.sock.listen()
 
-    def handle_data(self, data, address):
-        try:
-            if data == b"":
-                response = uuid.uuid1().__str__().encode(decoder)
-            else:
-                data = ast.literal_eval(data.decode(decoder))
-                self.all_locations.update(data)
-                locations = []
-                for identifier in self.all_locations.keys():
-                    info = self.all_locations[identifier]
-                    locations.append(info)
-                response = str(self.all_locations).encode(decoder)
-            return response
-        except Exception as e:
-            print(e)
-            print(address, "didn't parse packet as intended.")
-            pass
+    def handle_data(self, data: bytes) -> bytes:
+        identification = data[0].to_bytes(1, 'little')
+        if identification == b'\x00':
+            identification = IOTA()
+            return identification
+        else:
+            location = data[1:3]
+            self.all_players[identification] = location
+            return self.format_all_players()
+
+    def format_all_players(self) -> bytes:
+        players = self.all_players
+        response = b""
+        for id in players.keys():
+            response += id
+            response += players[id]
+        return response
 
     def run(self):
         print("server is listening...\n")
@@ -44,11 +56,12 @@ class Network_server:
                 response = self.sock.recvfrom(PACKET_SIZE)
                 data = response[0]
                 address = response[1]
-                response = self.handle_data(data, address)
-                self.sock.sendto(response,address)
-            except:
+                response = self.handle_data(data)
+                self.sock.sendto(response, address)
+            except Exception as e:
                 self.sock.close()
                 print("error handled succesfully")
+                print(e)
                 break
         exit(1)
 

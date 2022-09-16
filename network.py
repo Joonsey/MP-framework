@@ -19,10 +19,10 @@ from tools import run_in_thread
 
 #TODO: NEW PACKET STRUCTURE BASED ON INDEXATION
 """
-[0-3 : identifier | 4 - 6: location | 7: color | 8+ : special] 
+[0 : identifier | 1-3: location | 7: color | 8+ : special]
 
 special: kwargs**
-i.e: 
+i.e:
     - direction
     - event
 """
@@ -32,13 +32,13 @@ class Network_client:
     def __init__(self, ip, port):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.addr = (ip, port)
-        self.identifier = ''
+        self.identifier = b"\x00"
         self.responses = {}
 
     def connect(self):
         try:
-            self.client.sendto(str.encode(self.identifier), self.addr)
-            response = self.client.recv(PACKET_SIZE).decode(decoder)
+            self.client.sendto(self.identifier, self.addr)
+            response = self.client.recv(PACKET_SIZE)
             self.identifier = response
             return response
         except:
@@ -55,24 +55,10 @@ class Network_client:
 
     @run_in_thread
     def send(self, data):
-        if self.identifier == "":
-            print("ERROR: please connect to server first")
-        else:
-            try:
-                packet = {}
-                packet[self.identifier] = data
-                self.client.sendto(str(packet).encode(decoder), self.addr)
-                response = self.client.recv(2048).decode(decoder)
-                prev = self.responses
-                if response != prev:
-                    try:
-                        self.responses = ast.literal_eval(response)
-                    except:
-                        print("server lag causing buffer to be filled twice!")
-                        print(response)
-                else:
-                    self.responses = prev
-
-            except socket.error as e:
-                print(e)
+        try:
+            self.client.sendto(data, self.addr)
+            response = self.client.recv(PACKET_SIZE)
+            self.responses = response
+        except socket.error as e:
+            print(e)
 
