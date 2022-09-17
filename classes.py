@@ -68,3 +68,12 @@ class Player:
         self.sprite.color = color
         self.sprite._update_color()
 
+class Level:
+    """isometric lvl?"""
+    def __init__(self, amount_of_x_tiles: int, amount_of_y_tiles: int) -> None:
+        self.x_amount = amount_of_x_tiles
+        self.y_amount = amount_of_y_tiles
+
+    def draw_level(self, seed=None):
+        if not seed:
+            pass

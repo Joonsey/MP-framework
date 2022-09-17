@@ -23,10 +23,10 @@ player_img = ASSET_DICT['test_img']
 player_img = ASSET_DICT['test_img_spritesheet']
 
 class Game_client(pyglet.window.Window):
-    def __init__(self) -> None:
+    def __init__(self, network: Network_client) -> None:
         super(Game_client, self).__init__()
 
-        self.network = Network_client(IP, PORT)
+        self.network = network
         self.set_size(WIDTH, HEIGHT)
         self.player_batch = pyglet.graphics.Batch()
         self.ui_batch = pyglet.graphics.Batch()
@@ -123,5 +123,5 @@ if __name__ == "__main__":
     if args:
         if argv[1] == '-l':
             IP = "localhost"
-    game = Game_client()
+    game = Game_client(Network_client(IP, PORT))
     pyglet.app.run()
