@@ -17,7 +17,6 @@ class Player:
         self.new_direction = 0
         self.images = [img.get_transform(True), img]
 
-
     def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
 
@@ -25,12 +24,11 @@ class Player:
         self.input_handler(keyboard, dt)
         self.change_direction(self.new_direction)
         self.update_pos()
-        
+
     def change_direction(self, direction):
         if direction != self.direction:
             self.direction = direction
             self.sprite.image = self.images[direction]
-
 
     def input_handler(self, keyboard, dt):
         if keyboard[key.D]:
@@ -43,16 +41,27 @@ class Player:
             self.y += SPEED
         elif keyboard[key.S]:
             self.y -= SPEED
-        
         if keyboard[key.E]:
             #play_sound(max_mekker)
             pass
-            
+        if keyboard[key.F]:
+            self.change_color((255,0,255))
 
+    def get_color_in_bytes(self) -> bytes:
+        colors = self.sprite.color
+        color_in_bytes = b""
+        for color in colors:
+            color_in_bytes += color.to_bytes(1, 'little')
+        return color_in_bytes
 
-
-    def network_position(self):
-        return [self.x, self.y]
+    def set_color_from_bytes(self, color: bytes | list[int]):
+        new_color = color
+        if type(color) == bytes:
+            r = color[0]
+            g = color[1]
+            b = color[2]
+            new_color = [r,g,b]
+        self.change_color(tuple(new_color))
 
 
     def change_color(self, color: tuple):

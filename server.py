@@ -38,12 +38,13 @@ class Network_server:
             return identification
         else:
             location = data[1:3]
-            self.all_players[identification] = location
+            color = data[3:6]
+            self.all_players[identification] = location + color
             return self.format_all_players()
 
     def format_all_players(self) -> bytes:
         players = self.all_players
-        response = b""
+        response = b''
         for id in players.keys():
             response += id
             response += players[id]

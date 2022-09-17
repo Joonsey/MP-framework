@@ -7,7 +7,7 @@ from network import Network_client
 from classes import SPEED, Player
 from tools import ASSET_DICT, PACKET_SIZE
 
-AMOUNT_OF_BYTES_IN_PACKET = 3 #THIS WILL EXPAND AS PACKET SIZE INCREASES
+AMOUNT_OF_BYTES_IN_PACKET = 6 #THIS WILL EXPAND AS PACKET SIZE INCREASES
 # SEE NETWORK ln 10:18 -> FOR REFERENCE!
 WIDTH = 1080
 HEIGHT = 720
@@ -38,7 +38,6 @@ class Game_client(pyglet.window.Window):
         self.fps = 0
 
 
-
         response = self.network.connect() # connecting to server
         assert response, """
         Response was invalid.
@@ -49,7 +48,7 @@ class Game_client(pyglet.window.Window):
         pyglet.clock.schedule_interval(self.draw, 1/FPS)
 
         self.fps_counter_label = pyglet.text.Label(
-            self.fps.__str__(),
+            int(self.fps).__str__(),
             font_name="new times roman",
             font_size=FONT_SIZE,
             x = 0,
@@ -61,25 +60,39 @@ class Game_client(pyglet.window.Window):
         npcs = self.network.responses
         for i in range(0, len(npcs), AMOUNT_OF_BYTES_IN_PACKET):
             id = npcs[i]
-            coords = npcs[i+1:i+3]
-            if id.to_bytes(1, 'little') != self.network.identifier and id not in self.npcs.keys():
-                self.npcs[id] = Player(player_img, coords[0] * SPEED, coords[1] * SPEED, batch = self.player_batch)
+            x_coord = npcs[i+1]
+            y_coord = npcs[i+2]
+            color = npcs[i+3:i+6]
+
+            # supported data structure for color
+            #color = b'\xff\x00\x00'
+            #color = [0,0,255]
+
+            if id.to_bytes(1, 'little') == self.network.identifier:
+                pass
+            elif id not in self.npcs.keys():
+                self.npcs[id] = Player(player_img, x_coord * SPEED, y_coord * SPEED, batch = self.player_batch)
             else:
-                try:
-                    player   = self.npcs[id]
-                    player.x = coords[0] * SPEED
-                    player.y = coords[1] * SPEED
-                    player.update_pos()
-                except: pass
+                player   = self.npcs[id]
+                player.x = x_coord * SPEED
+                player.y = y_coord * SPEED
+                player.update_pos()
+                player.set_color_from_bytes(color)
 
     def update(self, dt):
         self.tick = pyglet.clock.tick()
         self.fps = pyglet.clock.get_fps()
-        self.fps_counter_label.text = self.fps.__str__()
+        self.fps_counter_label.text = int(self.fps).__str__()
         self.fps_counter_label.y = self.height - FONT_SIZE
         self.player.update(self.keyboard, dt)
 
-        data = self.network.identifier + int(self.player.x / SPEED).to_bytes(1,'little') + int(self.player.y / SPEED).to_bytes(1, 'little')
+        data = (
+        self.network.identifier
+        + int(self.player.x / SPEED).to_bytes(1,'little')
+        + int(self.player.y / SPEED).to_bytes(1, 'little')
+        + self.player.get_color_in_bytes()
+        )
+        #print(len(data)) #TODO KEEP THIS
         self.network.send(data)
         self.get_players()
 

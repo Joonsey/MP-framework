@@ -5,23 +5,11 @@ from tools import PACKET_SIZE, GLOBAL_SERVER_IP
 from tools import run_in_thread
 
 
-# NETWORK PACKET FORMAT
-# OBJECT LOCATION
-"""
-{IDENTIFIER:
-    {
-        location: [x,y],
-        color: (r,g,b),
-        state: ?,
-    }
-}
-"""
 
-#TODO: NEW PACKET STRUCTURE BASED ON INDEXATION
+# NEW PACKET STRUCTURE BASED ON INDEXATION
 """
-[0 : identifier | 1-3: location | 7: color | 8+ : special]
+[0 : identifier | 1 + 2: location | 3-6: color | 5 : special]
 
-special: kwargs**
 i.e:
     - direction
     - event
@@ -37,9 +25,7 @@ class Network_client:
 
     def connect(self):
         """
-        Function depricated!
         network now relies on UDP protocol.
-        this will be renamed and will function as a initial handshake to recieve credentials from server
         """
         try:
             self.client.sendto(self.identifier, self.addr)
