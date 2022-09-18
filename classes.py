@@ -63,10 +63,34 @@ class Player:
             new_color = [r,g,b]
         self.change_color(tuple(new_color))
 
-
     def change_color(self, color: tuple):
         self.sprite.color = color
         self.sprite._update_color()
+
+class Physics_object:
+    #TODO DEBUG AND TEST THIS ENTIRE THING PLX THANKS 🧓🧓
+    def __init__(self, xpos, ypos, width, height) -> None:
+        self.xpos = xpos
+        self.ypos = ypos
+        self.width = width
+        self.height = height
+
+    def is_coliding_with_list(self, colliders: list) -> list:
+        object_collided_with = []
+        for obj in colliders:
+            if obj.is_colliding_with_obj(self):
+                object_collided_with.append(obj)
+        return object_collided_with
+
+    def is_colliding_with_obj(self, obj) -> bool:
+        colided = False
+        if (obj.xpos < self.xpos - self.width and
+                obj.xpos > self.xpos and
+                obj.ypos < self.ypos - self.height and
+                obj.ypos > self.ypos):
+            colided = True
+
+        return colided
 
 class Level:
     """isometric lvl?"""
@@ -77,3 +101,10 @@ class Level:
     def draw_level(self, seed=None):
         if not seed:
             pass
+
+
+class Tile:
+    """tile"""
+    def __init__(self, xpos, ypos, **kwargs) -> None:
+        self.xpos = xpos
+        self.ypos = ypos
