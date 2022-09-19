@@ -56,6 +56,15 @@ class Game_client(pyglet.window.Window):
             batch=self.ui_batch
         )
 
+        self.debug_label = pyglet.text.Label(
+            "",
+            font_name="new times roman",
+            font_size=FONT_SIZE,
+            x = self.width - 100,
+            y = self.height-FONT_SIZE,
+            batch=self.ui_batch
+        )
+
     def get_players(self):
         npcs = self.network.responses
         for i in range(0, len(npcs), AMOUNT_OF_BYTES_IN_PACKET):
@@ -84,6 +93,9 @@ class Game_client(pyglet.window.Window):
         self.fps = pyglet.clock.get_fps()
         self.fps_counter_label.text = int(self.fps).__str__()
         self.fps_counter_label.y = self.height - FONT_SIZE
+        self.debug_label.y = self.height - FONT_SIZE
+        self.debug_label.x = self.width - 100
+        self.debug_label.text = self.player.is_coliding
         self.player.update(self.keyboard, dt)
 
         data = (

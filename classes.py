@@ -16,6 +16,8 @@ class Player:
         self.direction = 0
         self.new_direction = 0
         self.images = [img.get_transform(True), img]
+        self.is_coliding = False
+        self.physics_obj = Physics_object(x, y, self.img.width, self.img.height)
 
     def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
