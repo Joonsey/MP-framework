@@ -2,7 +2,9 @@ import pyglet
 from pyglet import image
 import sys
 from sys import argv
+import threading
 
+import server
 from network import Network_client
 from classes import SPEED, Player, Physics_object
 from tools import ASSET_DICT, PACKET_SIZE
@@ -136,7 +138,13 @@ class Game_client(pyglet.window.Window):
 if __name__ == "__main__":
     args = len(argv) > 1
     if args:
-        if argv[1] == '-l':
+        if '-l' in argv:
             IP = "localhost"
+        if '-h' in argv:
+            client_server = server.Network_server(IP, PORT)
+            threading.Thread(target=client_server.run, daemon=True).start()
+            print(f"hosting server at {IP} and port: {PORT}")
+
+    print(f"looking for server at {IP} ...")
     game = Game_client(Network_client(IP, PORT))
     pyglet.app.run()

@@ -21,7 +21,7 @@ def IOTA(force=False):
     return index.to_bytes(1,'big')
 
 class Network_server:
-    def __init__(self) -> None:
+    def __init__(self, ip, port) -> None:
         self.ip = IP
         self.port = PORT
         self.addr = (self.ip, self.port)
@@ -71,5 +71,5 @@ if __name__ == "__main__":
     if args:
         if argv[1] == '-l':
             IP = "localhost"
-    server = Network_server()
+    server = Network_server(IP, PORT)
     server.run()
