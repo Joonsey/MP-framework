@@ -6,7 +6,7 @@ from network import Network_client
 PLAYER_WIDTH=16
 PLAYER_HEIGHT=16
 SPEED = 10
-
+TILE_SIZE = 16
 
 class Player:
     def __init__(self, img, x, y, batch=None) -> None:
@@ -17,12 +17,19 @@ class Player:
         self.new_direction = 0
         self.images = [img.get_transform(True), img]
         self.is_coliding = False
-        self.physics_obj = Physics_object(x, y, self.img.width, self.img.height)
+        self.physics_obj = Physics_object(x, y, self.sprite.width, self.sprite.height)
+        self.objects_to_collide_with = []
 
     def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
+        self.physics_obj.xpos = self.x
+        self.physics_obj.ypos = self.y
 
     def update(self, keyboard, dt):
+        if self.physics_obj.is_coliding_with_list_of_objs(self.objects_to_collide_with):
+            self.is_coliding = True
+        else:
+            self.is_coliding = False
         self.input_handler(keyboard, dt)
         self.change_direction(self.new_direction)
         self.update_pos()
@@ -71,13 +78,13 @@ class Player:
 
 class Physics_object:
     #TODO DEBUG AND TEST THIS ENTIRE THING PLX THANKS 🧓🧓
-    def __init__(self, xpos, ypos, width, height) -> None:
+    def __init__(self, xpos: int, ypos: int, width: int, height: int) -> None:
         self.xpos = xpos
         self.ypos = ypos
         self.width = width
         self.height = height
 
-    def is_coliding_with_list(self, colliders: list) -> list:
+    def is_coliding_with_list_of_objs(self, colliders: list) -> list:
         object_collided_with = []
         for obj in colliders:
             if obj.is_colliding_with_obj(self):
@@ -86,10 +93,10 @@ class Physics_object:
 
     def is_colliding_with_obj(self, obj) -> bool:
         colided = False
-        if (obj.xpos < self.xpos - self.width and
-                obj.xpos > self.xpos and
-                obj.ypos < self.ypos - self.height and
-                obj.ypos > self.ypos):
+        if (obj.xpos <= self.xpos + self.width and
+                obj.xpos >= self.xpos and
+                obj.ypos <= self.ypos + self.height and
+                obj.ypos >= self.ypos):
             colided = True
 
         return colided
@@ -110,3 +117,4 @@ class Tile:
     def __init__(self, xpos, ypos, **kwargs) -> None:
         self.xpos = xpos
         self.ypos = ypos
+        self.physics_obj = Physics_object(xpos, ypos, TILE_SIZE, TILE_SIZE)

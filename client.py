@@ -4,7 +4,7 @@ import sys
 from sys import argv
 
 from network import Network_client
-from classes import SPEED, Player
+from classes import SPEED, Player, Physics_object
 from tools import ASSET_DICT, PACKET_SIZE
 
 AMOUNT_OF_BYTES_IN_PACKET = 6 #THIS WILL EXPAND AS PACKET SIZE INCREASES
@@ -37,6 +37,9 @@ class Game_client(pyglet.window.Window):
         self.tick = 0
         self.fps = 0
 
+        #TEST
+        #TODO remove when testing is redundant
+        self.player.objects_to_collide_with.append(Physics_object(30,30,30,30))
 
         response = self.network.connect() # connecting to server
         assert response, """
@@ -57,7 +60,7 @@ class Game_client(pyglet.window.Window):
         )
 
         self.debug_label = pyglet.text.Label(
-            "",
+            "debug",
             font_name="new times roman",
             font_size=FONT_SIZE,
             x = self.width - 100,
@@ -94,8 +97,8 @@ class Game_client(pyglet.window.Window):
         self.fps_counter_label.text = int(self.fps).__str__()
         self.fps_counter_label.y = self.height - FONT_SIZE
         self.debug_label.y = self.height - FONT_SIZE
-        self.debug_label.x = self.width - 100
-        self.debug_label.text = self.player.is_coliding
+        self.debug_label.x = self.width - self.debug_label.content_width
+        self.debug_label.text = str(self.player.is_coliding) + " " + str(self.player.x) + ", " +  str(self.player.y)
         self.player.update(self.keyboard, dt)
 
         data = (
