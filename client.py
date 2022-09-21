@@ -122,11 +122,12 @@ class Game_client(pyglet.window.Window):
         if keyboard[pyglet.window.key.Q]:
             sys.exit(0)
 
+        # FULLSCREEN
         if keyboard[pyglet.window.key.F11]:
-            self.set_fullscreen(True if not self.fullscreen else False)
+            self.set_fullscreen(True)
 
         elif keyboard[pyglet.window.key.F12]:
-            self.set_fullscreen(False if self.fullscreen else True)
+            self.set_fullscreen(False)
 
 
     def draw(self, dt):
