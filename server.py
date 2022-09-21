@@ -39,7 +39,8 @@ class Network_server:
         else:
             location = data[1:3]
             color = data[3:6]
-            self.all_players[identification] = location + color
+            direction = data[6]
+            self.all_players[identification] = data[1:]
             return self.format_all_players()
 
     def format_all_players(self) -> bytes:
