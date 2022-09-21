@@ -87,11 +87,14 @@ class Game_client(pyglet.window.Window):
             elif id not in self.npcs.keys():
                 self.npcs[id] = Player(player_img, x_coord * SPEED, y_coord * SPEED, batch = self.player_batch)
             else:
+                #TODO FIX POSITION DESCREPANCY
+                # X COORDINATE IS MISSPOSITIONED BY 10px?
                 player   = self.npcs[id]
                 player.x = x_coord * SPEED
                 player.y = y_coord * SPEED
                 player.update_pos()
                 player.set_color_from_bytes(color)
+                if player.physics_obj not in self.player.other_players: self.player.other_players.append(player.physics_obj)
 
     def update(self, dt):
         self.tick = pyglet.clock.tick()
