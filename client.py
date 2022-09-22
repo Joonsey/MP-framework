@@ -2,12 +2,14 @@ import pyglet
 from pyglet import image
 import sys
 from sys import argv
+import threading
 
+import server
 from network import Network_client
 from classes import SPEED, Player, Physics_object
 from tools import ASSET_DICT, PACKET_SIZE
 
-AMOUNT_OF_BYTES_IN_PACKET = 6 #THIS WILL EXPAND AS PACKET SIZE INCREASES
+AMOUNT_OF_BYTES_IN_PACKET = 7 #THIS WILL EXPAND AS PACKET SIZE INCREASES
 # SEE NETWORK ln 10:18 -> FOR REFERENCE!
 WIDTH = 1080
 HEIGHT = 720
@@ -71,10 +73,13 @@ class Game_client(pyglet.window.Window):
     def get_players(self):
         npcs = self.network.responses
         for i in range(0, len(npcs), AMOUNT_OF_BYTES_IN_PACKET):
+            #TODO REMINDER TO INCREMENT WITH I+index
+            #literally forget this every time
             id = npcs[i]
             x_coord = npcs[i+1]
             y_coord = npcs[i+2]
             color = npcs[i+3:i+6]
+            direction = npcs[i+6]
 
             # supported data structure for color
             #color = b'\xff\x00\x00'
@@ -88,8 +93,10 @@ class Game_client(pyglet.window.Window):
                 player   = self.npcs[id]
                 player.x = x_coord * SPEED
                 player.y = y_coord * SPEED
-                player.update_pos()
+                player.change_direction(direction)
                 player.set_color_from_bytes(color)
+                player.update_pos()
+                if player.physics_obj not in self.player.other_players: self.player.other_players.append(player.physics_obj)
 
     def update(self, dt):
         self.tick = pyglet.clock.tick()
@@ -106,6 +113,7 @@ class Game_client(pyglet.window.Window):
         + int(self.player.x / SPEED).to_bytes(1,'little')
         + int(self.player.y / SPEED).to_bytes(1, 'little')
         + self.player.get_color_in_bytes()
+        + self.player.direction.to_bytes(1, 'little')
         )
         #print(len(data)) #TODO KEEP THIS
         self.network.send(data)
@@ -120,11 +128,12 @@ class Game_client(pyglet.window.Window):
         if keyboard[pyglet.window.key.Q]:
             sys.exit(0)
 
+        # FULLSCREEN
         if keyboard[pyglet.window.key.F11]:
-            self.set_fullscreen(True if not self.fullscreen else False)
+            self.set_fullscreen(True)
 
         elif keyboard[pyglet.window.key.F12]:
-            self.set_fullscreen(False if self.fullscreen else True)
+            self.set_fullscreen(False)
 
 
     def draw(self, dt):
@@ -136,7 +145,13 @@ class Game_client(pyglet.window.Window):
 if __name__ == "__main__":
     args = len(argv) > 1
     if args:
-        if argv[1] == '-l':
+        if '-l' in argv:
             IP = "localhost"
+        if '-h' in argv:
+            client_server = server.Network_server(IP, PORT)
+            threading.Thread(target=client_server.run, daemon=True).start()
+            print(f"hosting server at {IP} and port: {PORT}")
+
+    print(f"looking for server at {IP} ...")
     game = Game_client(Network_client(IP, PORT))
     pyglet.app.run()

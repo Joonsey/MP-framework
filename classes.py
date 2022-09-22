@@ -19,6 +19,11 @@ class Player:
         self.is_coliding = False
         self.physics_obj = Physics_object(x, y, self.sprite.width, self.sprite.height)
         self.objects_to_collide_with = []
+        self.other_players = []
+
+        #TODO make this better
+        #i.e: much like direction
+        #self.color = (255,255,255)
 
     def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
@@ -28,8 +33,13 @@ class Player:
     def update(self, keyboard, dt):
         if self.physics_obj.is_coliding_with_list_of_objs(self.objects_to_collide_with):
             self.is_coliding = True
+            self.change_color((255,0,0))
+        elif self.physics_obj.is_coliding_with_list_of_objs(self.other_players):
+            self.is_coliding = True
+            self.change_color((0,0,255))
         else:
             self.is_coliding = False
+            self.change_color((255,255,255))
         self.input_handler(keyboard, dt)
         self.change_direction(self.new_direction)
         self.update_pos()

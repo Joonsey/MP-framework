@@ -1,8 +1,8 @@
 python -m pip install -r requirements.txt
 if %ERRORLEVEL% neq 0 goto throw_error
-pyinstaller client.py --noconfirm -F
+pyinstaller client.py --noconfirm -F --noconsole
 mkdir dist\assets
-xcopy /s assets\ dist\assets
+xcopy /s/Y assets\ dist\assets
 
 exit /b 0
 

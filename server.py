@@ -21,7 +21,7 @@ def IOTA(force=False):
     return index.to_bytes(1,'big')
 
 class Network_server:
-    def __init__(self) -> None:
+    def __init__(self, ip, port) -> None:
         self.ip = IP
         self.port = PORT
         self.addr = (self.ip, self.port)
@@ -39,7 +39,8 @@ class Network_server:
         else:
             location = data[1:3]
             color = data[3:6]
-            self.all_players[identification] = location + color
+            direction = data[6]
+            self.all_players[identification] = data[1:]
             return self.format_all_players()
 
     def format_all_players(self) -> bytes:
@@ -71,5 +72,5 @@ if __name__ == "__main__":
     if args:
         if argv[1] == '-l':
             IP = "localhost"
-    server = Network_server()
+    server = Network_server(IP, PORT)
     server.run()
