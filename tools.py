@@ -25,6 +25,9 @@ ASSET_DICT = {
     'test_img': load(os.path.join(assets_path, 'test.png')),
     'test_img_spritesheet': load_animation_from_sequntial_file('test_animation_sheet.png', cols=4),
     #'test_anim': animation(os.path.join(assets_path, 'test.gif'))
+    'tiles': {
+        1: load(os.path.join(assets_path, 'test.png'))
+    }
 }
 
 

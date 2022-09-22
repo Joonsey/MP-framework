@@ -2,6 +2,7 @@ import pyglet
 from pyglet.window import key
 
 from network import Network_client
+from tools import ASSET_DICT
 
 PLAYER_WIDTH=16
 PLAYER_HEIGHT=16
@@ -117,14 +118,30 @@ class Level:
         self.x_amount = amount_of_x_tiles
         self.y_amount = amount_of_y_tiles
 
-    def draw_level(self, seed=None):
+    def draw_level(self, seed: list[list[int]] | None =None):
         if not seed:
             pass
+        else:
+            for i in range(0, len(seed)):
+                for y in range(0, len(seed[i])):
+                    current_val = seed[i][y]
+                    #TODO create map idiot
 
 
 class Tile:
     """tile"""
-    def __init__(self, xpos, ypos, **kwargs) -> None:
+    def __init__(self, xpos, ypos, kind, batch=None, **kwargs) -> None:
         self.xpos = xpos
         self.ypos = ypos
+        self.kind = kind
+        img = ASSET_DICT['tiles'][kind]
+        self.sprite = pyglet.sprite.Sprite(img, xpos, ypos, batch=batch)
         self.physics_obj = Physics_object(xpos, ypos, TILE_SIZE, TILE_SIZE)
+
+    def update_pos(self, x, y):
+        self.xpos = x
+        self.ypos = y
+        self.sprite.x = x
+        self.sprite.x = y
+        self.physics_obj.xpos = x
+        self.physics_obj.ypos = y

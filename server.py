@@ -10,7 +10,7 @@ decoder = 'utf-8'
 
 index = 0
 
-def IOTA(force=False):
+def IOTA(force=False) -> bytes:
     """
     ENUMERATOR
     """
