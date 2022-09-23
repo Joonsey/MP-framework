@@ -117,16 +117,17 @@ class Level:
     def __init__(self, amount_of_x_tiles: int, amount_of_y_tiles: int) -> None:
         self.x_amount = amount_of_x_tiles
         self.y_amount = amount_of_y_tiles
+        self.tiles = []
 
-    def draw_level(self, seed: list[list[int]] | None =None):
+    def draw_level(self, seed: list[list[int]] | None = None, batch=None):
         if not seed:
             pass
         else:
             for i in range(0, len(seed)):
                 for y in range(0, len(seed[i])):
                     current_val = seed[i][y]
-                    #TODO create map idiot
-
+                    if current_val == 1:
+                        self.tiles.append(Tile(y * TILE_SIZE, i * TILE_SIZE, current_val, batch=batch))
 
 class Tile:
     """tile"""

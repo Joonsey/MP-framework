@@ -27,9 +27,14 @@ ASSET_DICT = {
     #'test_anim': animation(os.path.join(assets_path, 'test.gif'))
     'tiles': {
         1: load(os.path.join(assets_path, 'test.png'))
-    }
+    },
+    'map_seed':
+    [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ]
 }
-
-
-
-

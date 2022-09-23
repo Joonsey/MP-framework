@@ -6,15 +6,18 @@ import threading
 
 import server
 from network import Network_client
-from classes import SPEED, Player, Physics_object
+from classes import SPEED, Player, Physics_object, Level, Tile
 from tools import ASSET_DICT, PACKET_SIZE
+
+LEVEL_WIDTH = 32
+LEVEL_HEIGHT = 32
 
 AMOUNT_OF_BYTES_IN_PACKET = 7 #THIS WILL EXPAND AS PACKET SIZE INCREASES
 # SEE NETWORK ln 10:18 -> FOR REFERENCE!
 WIDTH = 1080
 HEIGHT = 720
-FPS  = 120
-TPS  = 20
+FPS = 120
+TPS = 60
 FONT_SIZE = 36
 NOT_PLAYER_COLOR = (10,223,15)
 IP = "52.143.187.171"
@@ -31,8 +34,10 @@ class Game_client(pyglet.window.Window):
         self.network = network
         self.set_size(WIDTH, HEIGHT)
         self.player_batch = pyglet.graphics.Batch()
+        self.level_batch = pyglet.graphics.Batch()
         self.ui_batch = pyglet.graphics.Batch()
         self.player = Player(player_img, 20, 30, self.player_batch)
+        self.level = Level(LEVEL_WIDTH, LEVEL_HEIGHT)
         self.keyboard = pyglet.window.key.KeyStateHandler()
         self.push_handlers(self.keyboard)
         self.npcs = {}
@@ -69,6 +74,9 @@ class Game_client(pyglet.window.Window):
             y = self.height-FONT_SIZE,
             batch=self.ui_batch
         )
+
+
+        self.level.draw_level(ASSET_DICT['map_seed'], batch=self.level_batch)
 
     def get_players(self):
         npcs = self.network.responses
@@ -138,8 +146,10 @@ class Game_client(pyglet.window.Window):
 
     def draw(self, dt):
         self.clear()
+        self.level_batch.draw()
         self.player_batch.draw()
         self.ui_batch.draw()
+
 
 
 if __name__ == "__main__":
