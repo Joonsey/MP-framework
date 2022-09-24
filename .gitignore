@@ -4,6 +4,8 @@ build/
 build/*
 dist/
 dist/*
+venv/
+venv/*
 
 *.spec
 

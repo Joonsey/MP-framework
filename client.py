@@ -6,7 +6,7 @@ import threading
 
 import server
 from network import Network_client
-from classes import SPEED, Player, Physics_object, Level, Tile
+from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile, TILE_SIZE
 from tools import ASSET_DICT, PACKET_SIZE
 
 LEVEL_WIDTH = 32
@@ -76,7 +76,13 @@ class Game_client(pyglet.window.Window):
         )
 
 
-        self.level.draw_level(ASSET_DICT['map_seed'], batch=self.level_batch)
+        map_seed = ASSET_DICT['map_seed']
+        total_size_of_map_horizontal = len(map_seed[0])*TILE_SIZE
+        total_size_of_map_vertical = len(map_seed)*TILE_SIZE
+        left_padding = (WIDTH/2) - (total_size_of_map_horizontal/2)
+        bottom_padding = (HEIGHT/2) - (total_size_of_map_vertical/2)
+
+        self.level.draw_level(map_seed, batch=self.level_batch, left_padding=left_padding, bottom_padding=bottom_padding)
 
     def get_players(self):
         npcs = self.network.responses
@@ -96,11 +102,11 @@ class Game_client(pyglet.window.Window):
             if id.to_bytes(1, 'little') == self.network.identifier:
                 pass
             elif id not in self.npcs.keys():
-                self.npcs[id] = Player(player_img, x_coord * SPEED, y_coord * SPEED, batch = self.player_batch)
+                self.npcs[id] = Player(player_img, x_coord * CONST_MOVEMENT_SPEED, y_coord * CONST_MOVEMENT_SPEED, batch = self.player_batch)
             else:
                 player   = self.npcs[id]
-                player.x = x_coord * SPEED
-                player.y = y_coord * SPEED
+                player.x = x_coord * CONST_MOVEMENT_SPEED
+                player.y = y_coord * CONST_MOVEMENT_SPEED
                 player.change_direction(direction)
                 player.set_color_from_bytes(color)
                 player.update_pos()
@@ -113,13 +119,13 @@ class Game_client(pyglet.window.Window):
         self.fps_counter_label.y = self.height - FONT_SIZE
         self.debug_label.y = self.height - FONT_SIZE
         self.debug_label.x = self.width - self.debug_label.content_width
-        self.debug_label.text = str(self.player.is_coliding) + " " + str(self.player.x) + ", " +  str(self.player.y)
+        self.debug_label.text = str(self.player.is_coliding) + " " + str(int(self.player.x)) + ", " +  str(int(self.player.y))
         self.player.update(self.keyboard, dt)
 
         data = (
         self.network.identifier
-        + int(self.player.x / SPEED).to_bytes(1,'little')
-        + int(self.player.y / SPEED).to_bytes(1, 'little')
+        + int(self.player.x / CONST_MOVEMENT_SPEED).to_bytes(1,'little')
+        + int(self.player.y / CONST_MOVEMENT_SPEED).to_bytes(1, 'little')
         + self.player.get_color_in_bytes()
         + self.player.direction.to_bytes(1, 'little')
         )

@@ -6,7 +6,8 @@ from tools import ASSET_DICT
 
 PLAYER_WIDTH=16
 PLAYER_HEIGHT=16
-SPEED = 10
+CONST_MOVEMENT_SPEED = 5
+SPEED = [0,0]
 TILE_SIZE = 16
 
 class Player:
@@ -52,20 +53,35 @@ class Player:
 
     def input_handler(self, keyboard, dt):
         if keyboard[key.D]:
-            self.x += SPEED
+            SPEED[0] = 1
             self.new_direction = 1
         elif keyboard[key.A]:
-            self.x -= SPEED
+            SPEED[0] = -1
             self.new_direction = 0
+        else:
+            SPEED[0] = 0
+
         if keyboard[key.W]:
-            self.y += SPEED
+            SPEED[1] = 1
         elif keyboard[key.S]:
-            self.y -= SPEED
+            SPEED[1] = -1
+        else:
+            SPEED[1] = 0
+
         if keyboard[key.E]:
             #play_sound(max_mekker)
             pass
         if keyboard[key.F]:
             self.change_color((255,0,255))
+
+
+        # this is supposed to smothen it out a little, not sure if it impacts the experience at all...
+        #rate = 1 - (2.0** -10.0 * dt)
+        # THIS FUCKS WITH MY PACKETS DUE TO A ROUNDING ERROR
+
+
+        self.x += ((SPEED[0] * 5)) #* rate
+        self.y += ((SPEED[1] * 5)) #* rate
 
     def get_color_in_bytes(self) -> bytes:
         colors = self.sprite.color
@@ -119,15 +135,15 @@ class Level:
         self.y_amount = amount_of_y_tiles
         self.tiles = []
 
-    def draw_level(self, seed: list[list[int]] | None = None, batch=None):
+    def draw_level(self, seed: list[list[int]] | None = None, batch=None, left_padding:int | float = 0, bottom_padding:int | float = 0):
         if not seed:
             pass
         else:
-            for i in range(0, len(seed)):
-                for y in range(0, len(seed[i])):
-                    current_val = seed[i][y]
+            for y in range(0, len(seed)):
+                for x in range(0, len(seed[y])):
+                    current_val = seed[y][x]
                     if current_val == 1:
-                        self.tiles.append(Tile(y * TILE_SIZE, i * TILE_SIZE, current_val, batch=batch))
+                        self.tiles.append(Tile(left_padding + (x * TILE_SIZE), bottom_padding + (y * TILE_SIZE), current_val, batch=batch))
 
 class Tile:
     """tile"""
