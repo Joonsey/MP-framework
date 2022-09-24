@@ -2,13 +2,12 @@ import pyglet
 from pyglet.window import key
 
 from network import Network_client
-from tools import ASSET_DICT
+from tools import ASSET_DICT, TILE_SIZE
 
 PLAYER_WIDTH=16
 PLAYER_HEIGHT=16
 CONST_MOVEMENT_SPEED = 5
 SPEED = [0,0]
-TILE_SIZE = 16
 
 class Player:
     def __init__(self, img, x, y, batch=None) -> None:
@@ -130,12 +129,15 @@ class Physics_object:
 
 class Level:
     """isometric lvl?"""
-    def __init__(self, amount_of_x_tiles: int, amount_of_y_tiles: int) -> None:
+    def __init__(self, amount_of_x_tiles: int, amount_of_y_tiles: int, left_padding:int | float = 0, bottom_padding:int | float = 0) -> None:
         self.x_amount = amount_of_x_tiles
         self.y_amount = amount_of_y_tiles
         self.tiles = []
+        self.left_padding = left_padding
+        self.bottom_padding = bottom_padding
 
-    def draw_level(self, seed: list[list[int]] | None = None, batch=None, left_padding:int | float = 0, bottom_padding:int | float = 0):
+
+    def draw_level(self, seed: list[list[int]] | None = None, batch=None):
         if not seed:
             pass
         else:
@@ -143,7 +145,11 @@ class Level:
                 for x in range(0, len(seed[y])):
                     current_val = seed[y][x]
                     if current_val == 1:
-                        self.tiles.append(Tile(left_padding + (x * TILE_SIZE), bottom_padding + (y * TILE_SIZE), current_val, batch=batch))
+                        self.tiles.append(Tile((x * TILE_SIZE),(y * TILE_SIZE), current_val, batch=batch))
+
+    def update_level_pos_with_respect_to_padding(self, left_padding, bottom_padding):
+        for tile in self.tiles:
+            tile.update_pos_with_respect_to_padding(left_padding, bottom_padding)
 
 class Tile:
     """tile"""
@@ -154,11 +160,19 @@ class Tile:
         img = ASSET_DICT['tiles'][kind]
         self.sprite = pyglet.sprite.Sprite(img, xpos, ypos, batch=batch)
         self.physics_obj = Physics_object(xpos, ypos, TILE_SIZE, TILE_SIZE)
+        self.left_padding = 0
+        self.bottom_padding = 0
+
+    def update_pos_with_respect_to_padding(self, left_padding, bottom_padding):
+        self.update_pos(self.xpos - self.left_padding + left_padding,
+                        self.ypos - self.bottom_padding + bottom_padding)
+        self.left_padding = left_padding
+        self.bottom_padding = bottom_padding
 
     def update_pos(self, x, y):
         self.xpos = x
         self.ypos = y
         self.sprite.x = x
-        self.sprite.x = y
+        self.sprite.y = y
         self.physics_obj.xpos = x
         self.physics_obj.ypos = y

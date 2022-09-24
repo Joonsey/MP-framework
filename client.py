@@ -6,8 +6,8 @@ import threading
 
 import server
 from network import Network_client
-from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile, TILE_SIZE
-from tools import ASSET_DICT, PACKET_SIZE
+from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile
+from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
 
 LEVEL_WIDTH = 32
 LEVEL_HEIGHT = 32
@@ -76,13 +76,11 @@ class Game_client(pyglet.window.Window):
         )
 
 
-        map_seed = ASSET_DICT['map_seed']
-        total_size_of_map_horizontal = len(map_seed[0])*TILE_SIZE
-        total_size_of_map_vertical = len(map_seed)*TILE_SIZE
-        left_padding = (WIDTH/2) - (total_size_of_map_horizontal/2)
-        bottom_padding = (HEIGHT/2) - (total_size_of_map_vertical/2)
+        self.map_seed = ASSET_DICT['map_seed']
+        left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
 
-        self.level.draw_level(map_seed, batch=self.level_batch, left_padding=left_padding, bottom_padding=bottom_padding)
+        self.level.draw_level(self.map_seed, batch=self.level_batch)
+        self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
     def get_players(self):
         npcs = self.network.responses
@@ -143,11 +141,19 @@ class Game_client(pyglet.window.Window):
             sys.exit(0)
 
         # FULLSCREEN
-        if keyboard[pyglet.window.key.F11]:
+        if keyboard[pyglet.window.key.F11] and not self.fullscreen:
             self.set_fullscreen(True)
+            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
+            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
-        elif keyboard[pyglet.window.key.F12]:
+        elif keyboard[pyglet.window.key.F12] and self.fullscreen:
             self.set_fullscreen(False)
+            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
+            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
+
+        if keyboard[pyglet.window.key.F]:
+            tile = self.level.tiles[3]
+            tile.update_pos(300, 400)
 
 
     def draw(self, dt):

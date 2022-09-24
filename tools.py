@@ -5,7 +5,7 @@ from pyglet.resource import animation, image
 from pyglet.sprite import Sprite
 from _thread import start_new_thread
 
-pyglet.resource.path
+TILE_SIZE = 16
 
 asset_folder_name = 'assets'
 assets_path = os.path.join(os.getcwd(), asset_folder_name)
@@ -14,6 +14,14 @@ def run_in_thread(func):
     def run(*k, **kw):
         start_new_thread(func, k)
     return run
+
+def get_padding_for_map(map_seed, WIDTH, HEIGHT):
+    total_size_of_map_horizontal = len(map_seed[0])*TILE_SIZE
+    total_size_of_map_vertical = len(map_seed)*TILE_SIZE
+    left_padding = (WIDTH/2) - (total_size_of_map_horizontal/2)
+    bottom_padding = (HEIGHT/2) - (total_size_of_map_vertical/2)
+
+    return left_padding, bottom_padding
 
 def load_animation_from_sequntial_file(img_dir, rows=1, cols=1, duration=0.2):
     return pyglet.image.Animation.from_image_sequence(ImageGrid(load(os.path.join(assets_path, img_dir)), rows=rows, columns=cols), duration=duration)
