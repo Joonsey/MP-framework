@@ -1,20 +1,24 @@
-import pyglet
 from pyglet import image
-import sys
 from sys import argv
-import threading
 
+import threading
+import pyglet
+import sys
 import server
+
 from network import Network_client
-from classes import SPEED, Player, Physics_object
-from tools import ASSET_DICT, PACKET_SIZE
+from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile
+from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
+
+LEVEL_WIDTH = 32
+LEVEL_HEIGHT = 32
 
 AMOUNT_OF_BYTES_IN_PACKET = 7 #THIS WILL EXPAND AS PACKET SIZE INCREASES
 # SEE NETWORK ln 10:18 -> FOR REFERENCE!
 WIDTH = 1080
 HEIGHT = 720
-FPS  = 120
-TPS  = 20
+FPS = 120
+TPS = 60
 FONT_SIZE = 36
 NOT_PLAYER_COLOR = (10,223,15)
 IP = "52.143.187.171"
@@ -31,17 +35,16 @@ class Game_client(pyglet.window.Window):
         self.network = network
         self.set_size(WIDTH, HEIGHT)
         self.player_batch = pyglet.graphics.Batch()
+        self.level_batch = pyglet.graphics.Batch()
         self.ui_batch = pyglet.graphics.Batch()
         self.player = Player(player_img, 20, 30, self.player_batch)
+        self.level = Level(LEVEL_WIDTH, LEVEL_HEIGHT)
         self.keyboard = pyglet.window.key.KeyStateHandler()
         self.push_handlers(self.keyboard)
         self.npcs = {}
         self.tick = 0
         self.fps = 0
 
-        #TEST
-        #TODO remove when testing is redundant
-        self.player.objects_to_collide_with.append(Physics_object(30,30,30,30))
 
         response = self.network.connect() # connecting to server
         assert response, """
@@ -70,6 +73,13 @@ class Game_client(pyglet.window.Window):
             batch=self.ui_batch
         )
 
+
+        self.map_seed = ASSET_DICT['map_seed']
+        left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
+
+        self.level.draw_level(self.map_seed, batch=self.level_batch)
+        self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
+
     def get_players(self):
         npcs = self.network.responses
         for i in range(0, len(npcs), AMOUNT_OF_BYTES_IN_PACKET):
@@ -88,11 +98,11 @@ class Game_client(pyglet.window.Window):
             if id.to_bytes(1, 'little') == self.network.identifier:
                 pass
             elif id not in self.npcs.keys():
-                self.npcs[id] = Player(player_img, x_coord * SPEED, y_coord * SPEED, batch = self.player_batch)
+                self.npcs[id] = Player(player_img, x_coord * CONST_MOVEMENT_SPEED, y_coord * CONST_MOVEMENT_SPEED, batch = self.player_batch)
             else:
                 player   = self.npcs[id]
-                player.x = x_coord * SPEED
-                player.y = y_coord * SPEED
+                player.x = x_coord * CONST_MOVEMENT_SPEED
+                player.y = y_coord * CONST_MOVEMENT_SPEED
                 player.change_direction(direction)
                 player.set_color_from_bytes(color)
                 player.update_pos()
@@ -105,15 +115,15 @@ class Game_client(pyglet.window.Window):
         self.fps_counter_label.y = self.height - FONT_SIZE
         self.debug_label.y = self.height - FONT_SIZE
         self.debug_label.x = self.width - self.debug_label.content_width
-        self.debug_label.text = str(self.player.is_coliding) + " " + str(self.player.x) + ", " +  str(self.player.y)
+        self.debug_label.text = str(self.player.is_coliding) + " " + str(int(self.player.x)) + ", " +  str(int(self.player.y))
         self.player.update(self.keyboard, dt)
 
         data = (
-        self.network.identifier
-        + int(self.player.x / SPEED).to_bytes(1,'little')
-        + int(self.player.y / SPEED).to_bytes(1, 'little')
-        + self.player.get_color_in_bytes()
-        + self.player.direction.to_bytes(1, 'little')
+            self.network.identifier
+            + int(self.player.x / CONST_MOVEMENT_SPEED).to_bytes(1,'little')
+            + int(self.player.y / CONST_MOVEMENT_SPEED).to_bytes(1, 'little')
+            + self.player.get_color_in_bytes()
+            + self.player.direction.to_bytes(1, 'little')
         )
         #print(len(data)) #TODO KEEP THIS
         self.network.send(data)
@@ -129,17 +139,28 @@ class Game_client(pyglet.window.Window):
             sys.exit(0)
 
         # FULLSCREEN
-        if keyboard[pyglet.window.key.F11]:
+        if keyboard[pyglet.window.key.F11] and not self.fullscreen:
             self.set_fullscreen(True)
+            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
+            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
-        elif keyboard[pyglet.window.key.F12]:
+        elif keyboard[pyglet.window.key.F12] and self.fullscreen:
             self.set_fullscreen(False)
+            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
+            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
+
+        if keyboard[pyglet.window.key.F]:
+            tile = self.level.tiles[3]
+            tile.update_pos(300, 400)
 
 
     def draw(self, dt):
+        """being called by the pyglet.clock"""
         self.clear()
+        self.level_batch.draw()
         self.player_batch.draw()
         self.ui_batch.draw()
+
 
 
 if __name__ == "__main__":
