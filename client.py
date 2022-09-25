@@ -1,10 +1,11 @@
-import pyglet
 from pyglet import image
-import sys
 from sys import argv
-import threading
 
+import threading
+import pyglet
+import sys
 import server
+
 from network import Network_client
 from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile
 from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
@@ -44,9 +45,6 @@ class Game_client(pyglet.window.Window):
         self.tick = 0
         self.fps = 0
 
-        #TEST
-        #TODO remove when testing is redundant
-        self.player.objects_to_collide_with.append(Physics_object(30,30,30,30))
 
         response = self.network.connect() # connecting to server
         assert response, """
@@ -121,11 +119,11 @@ class Game_client(pyglet.window.Window):
         self.player.update(self.keyboard, dt)
 
         data = (
-        self.network.identifier
-        + int(self.player.x / CONST_MOVEMENT_SPEED).to_bytes(1,'little')
-        + int(self.player.y / CONST_MOVEMENT_SPEED).to_bytes(1, 'little')
-        + self.player.get_color_in_bytes()
-        + self.player.direction.to_bytes(1, 'little')
+            self.network.identifier
+            + int(self.player.x / CONST_MOVEMENT_SPEED).to_bytes(1,'little')
+            + int(self.player.y / CONST_MOVEMENT_SPEED).to_bytes(1, 'little')
+            + self.player.get_color_in_bytes()
+            + self.player.direction.to_bytes(1, 'little')
         )
         #print(len(data)) #TODO KEEP THIS
         self.network.send(data)

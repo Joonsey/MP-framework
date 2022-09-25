@@ -22,9 +22,6 @@ class Player:
         self.objects_to_collide_with = []
         self.other_players = []
 
-        #TODO make this better
-        #i.e: much like direction
-        #self.color = (255,255,255)
 
     def update_pos(self):
         self.sprite.update(x=self.x, y=self.y)
