@@ -75,9 +75,9 @@ class Game_client(pyglet.window.Window):
 
 
         self.map_seed = ASSET_DICT['map_seed']
-        left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
 
         self.level.draw_level(self.map_seed, batch=self.level_batch)
+        left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
         self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
     def get_players(self):
@@ -150,8 +150,8 @@ class Game_client(pyglet.window.Window):
             self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
         if keyboard[pyglet.window.key.F]:
-            tile = self.level.tiles[3]
-            tile.update_pos(300, 400)
+            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
+            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
 
     def draw(self, dt):
