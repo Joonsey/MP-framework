@@ -23,9 +23,17 @@ def get_padding_for_map(map_seed, width, height):
 
     return left_padding, bottom_padding
 
-#TODO make it dynamically scale to the amount of individual images in the grid
+def get_amount_of_cols(width):
+    return width // TILE_SIZE
+
+def get_amount_of_rows(height):
+    return height // TILE_SIZE
+
 def load_animation_from_sequential_file(img_dir, rows=1, cols=1, duration=0.2) -> pyglet.image.Animation:
-    """loads an animation from a file containing sequences of images"""
+    """
+    loads an animation from a file containing sequences of images
+    if rows and cols are not specified it will dynamically find the amount of columns
+    """
     return pyglet.image.Animation.from_image_sequence(get_imagegrid_from_file(img_dir, rows, cols), duration=duration)
 
 def load_animation_from_imagegrid(imagegrid: ImageGrid, duration=0.2) -> pyglet.image.Animation:
@@ -33,18 +41,23 @@ def load_animation_from_imagegrid(imagegrid: ImageGrid, duration=0.2) -> pyglet.
     return pyglet.image.Animation.from_image_sequence(imagegrid, duration)
 
 def get_imagegrid_from_file(img_dir, rows=1, cols=1) -> ImageGrid:
-    """construct an image grid from a file"""
-    return ImageGrid(load(os.path.join(assets_path, img_dir)),
-              rows=rows,
-              columns=cols)
+    """
+    construct an image grid from a file
+    if rows and cols are not specified it will dynamically find the amount of columns
+    """
+    img = load(os.path.join(assets_path, img_dir))
+    if cols == 1 and rows == 1:
+        return ImageGrid(img, rows=get_amount_of_rows(img.height), columns=get_amount_of_cols(img.width))
+    else:
+        return ImageGrid(img, rows=rows, columns=cols)
 
 GLOBAL_SERVER_IP = "84.212.20.23"
 PACKET_SIZE = 10240
 
 
-rocks = get_imagegrid_from_file('rocks.png', cols=5)
-red_bush = get_imagegrid_from_file('red-bush.png', cols=7)
-green_bush = get_imagegrid_from_file('green-bush.png', cols=7)
+rocks = get_imagegrid_from_file('rocks.png')
+red_bush = get_imagegrid_from_file('red-bush.png')
+green_bush = get_imagegrid_from_file('green-bush.png')
 
 """containing paths to all assets"""
 ASSET_DICT = {

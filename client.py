@@ -155,6 +155,7 @@ class Game_client(pyglet.window.Window):
 
 
     def draw(self, dt):
+        """being called by the pyglet.clock"""
         self.clear()
         self.level_batch.draw()
         self.player_batch.draw()
