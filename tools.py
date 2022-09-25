@@ -5,7 +5,7 @@ from pyglet.resource import animation, image
 from pyglet.sprite import Sprite
 from _thread import start_new_thread
 
-TILE_SIZE = 16
+TILE_SIZE = 32
 
 asset_folder_name = 'assets'
 assets_path = os.path.join(os.getcwd(), asset_folder_name)
@@ -23,26 +23,49 @@ def get_padding_for_map(map_seed, WIDTH, HEIGHT):
 
     return left_padding, bottom_padding
 
-def load_animation_from_sequntial_file(img_dir, rows=1, cols=1, duration=0.2):
-    return pyglet.image.Animation.from_image_sequence(ImageGrid(load(os.path.join(assets_path, img_dir)), rows=rows, columns=cols), duration=duration)
+def load_animation_from_sequential_file(img_dir, rows=1, cols=1, duration=0.2):
+    """loads an animation from a file containing sequences of images"""
+    return pyglet.image.Animation.from_image_sequence(get_imagegrid_from_file(img_dir, rows, cols), duration=duration)
+
+def load_animation_from_imagegrid(imagegrid: ImageGrid, duration=0.2):
+    """loads an animation from an ImageGrid object"""
+    return pyglet.image.Animation.from_image_sequence(imagegrid, duration)
+
+#TODO make it dynamically scale to the amount of individual images in the grid
+def get_imagegrid_from_file(img_dir, rows=1, cols=1):
+    """construct an image grid from a file"""
+    return ImageGrid(load(os.path.join(assets_path, img_dir)),
+              rows=rows,
+              columns=cols)
+
+test = get_imagegrid_from_file('green-bush.png', cols=6)
 GLOBAL_SERVER_IP = "84.212.20.23"
 PACKET_SIZE = 10240
+
+
+rocks = get_imagegrid_from_file('rocks.png', cols=5)
+red_bush = get_imagegrid_from_file('red-bush.png', cols=7)
+green_bush = get_imagegrid_from_file('green-bush.png', cols=7)
 
 """containing paths to all assets"""
 ASSET_DICT = {
     'test_img': load(os.path.join(assets_path, 'test.png')),
-    'test_img_spritesheet': load_animation_from_sequntial_file('test_animation_sheet.png', cols=4),
-    #'test_anim': animation(os.path.join(assets_path, 'test.gif'))
+    'test_img_spritesheet': load_animation_from_sequential_file('test_animation_sheet.png', cols=4),
     'tiles': {
-        1: load(os.path.join(assets_path, 'test.png'))
+        1: rocks[0],
+        2: rocks[3],
+        3: red_bush[2],
     },
     'map_seed':
     [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
+        [1, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1],
+        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1],
+        [0, 3, 1, 2, 1, 1, 2, 0, 1, 3, 1],
+        [0, 3, 3, 2, 1, 1, 1, 0, 3, 3, 1],
+        [1, 1, 3, 1, 1, 1, 1, 3, 3, 1, 1]
     ]
 }

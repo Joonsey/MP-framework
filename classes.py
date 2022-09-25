@@ -144,8 +144,10 @@ class Level:
             for y in range(0, len(seed)):
                 for x in range(0, len(seed[y])):
                     current_val = seed[y][x]
-                    if current_val == 1:
-                        self.tiles.append(Tile((x * TILE_SIZE),(y * TILE_SIZE), current_val, batch=batch))
+                    if current_val:
+                        xpos = TILE_SIZE * x
+                        ypos = TILE_SIZE * y
+                        self.tiles.append(Tile(xpos,ypos, current_val, batch=batch))
 
     def update_level_pos_with_respect_to_padding(self, left_padding, bottom_padding):
         for tile in self.tiles:
