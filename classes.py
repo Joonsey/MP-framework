@@ -70,14 +70,18 @@ class Player:
         if keyboard[key.F]:
             self.change_color((255,0,255))
 
+        # update_pos is being used to synchronize the new calculated position to then check for colision
+        self.x += SPEED[0] * 5
+        self.update_pos()
+        if self.physics_obj.is_coliding_with_list_of_objs(self.objects_to_collide_with):
+            # horizontal colision detected
+            self.x -= SPEED[0] * 5
 
-        # this is supposed to smothen it out a little, not sure if it impacts the experience at all...
-        #rate = 1 - (2.0** -10.0 * dt)
-        # THIS FUCKS WITH MY PACKETS DUE TO A ROUNDING ERROR
-
-
-        self.x += ((SPEED[0] * 5)) #* rate
-        self.y += ((SPEED[1] * 5)) #* rate
+        self.y += SPEED[1] * 5
+        self.update_pos()
+        if self.physics_obj.is_coliding_with_list_of_objs(self.objects_to_collide_with):
+            # vertical colision detected
+            self.y -= SPEED[1] * 5
 
     def get_color_in_bytes(self) -> bytes:
         colors = self.sprite.color
@@ -132,6 +136,7 @@ class Level:
         self.tiles = []
         self.left_padding = left_padding
         self.bottom_padding = bottom_padding
+        self.collision_tiles = []
 
 
     def draw_level(self, seed: list[list[int]] | None = None, batch=None):
@@ -140,11 +145,12 @@ class Level:
         else:
             for y in range(0, len(seed)):
                 for x in range(0, len(seed[y])):
-                    current_val = seed[y][x]
-                    if current_val:
-                        xpos = TILE_SIZE * x
-                        ypos = TILE_SIZE * y
-                        self.tiles.append(Tile(xpos,ypos, current_val, batch=batch))
+                    current_val = seed[len(seed) - (y+1)][x]
+                    xpos = TILE_SIZE * x
+                    ypos = TILE_SIZE * y
+                    tile = Tile(xpos,ypos, current_val, batch=batch)
+                    self.tiles.append(tile)
+                    if not current_val: self.collision_tiles.append(tile.physics_obj)
 
     def update_level_pos_with_respect_to_padding(self, left_padding, bottom_padding):
         for tile in self.tiles:
@@ -153,11 +159,14 @@ class Level:
 class Tile:
     """tile"""
     def __init__(self, xpos, ypos, kind, batch=None, **kwargs) -> None:
+        if not kind:
+            self.sprite = None
+        else:
+            img = ASSET_DICT['tiles'][kind]
+            self.sprite = pyglet.sprite.Sprite(img, xpos, ypos, batch=batch)
         self.xpos = xpos
         self.ypos = ypos
         self.kind = kind
-        img = ASSET_DICT['tiles'][kind]
-        self.sprite = pyglet.sprite.Sprite(img, xpos, ypos, batch=batch)
         self.physics_obj = Physics_object(xpos, ypos, TILE_SIZE, TILE_SIZE)
         self.left_padding = 0
         self.bottom_padding = 0
@@ -171,7 +180,8 @@ class Tile:
     def update_pos(self, x, y):
         self.xpos = x
         self.ypos = y
-        self.sprite.x = x
-        self.sprite.y = y
         self.physics_obj.xpos = x
         self.physics_obj.ypos = y
+        if self.sprite:
+            self.sprite.x = x
+            self.sprite.y = y
