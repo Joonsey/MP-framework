@@ -43,7 +43,7 @@ def load_animation_from_imagegrid(imagegrid: ImageGrid, duration=0.2) -> pyglet.
 def get_imagegrid_from_file(img_dir, rows=1, cols=1) -> ImageGrid:
     """
     construct an image grid from a file
-    if rows and cols are not specified it will dynamically find the amount of columns
+    if rows and cols are not provided it will dynamically find the amount of columns
     """
     img = load(os.path.join(assets_path, img_dir))
     if cols == 1 and rows == 1:
@@ -64,20 +64,32 @@ ASSET_DICT = {
     'test_img': load(os.path.join(assets_path, 'test.png')),
     'test_img_spritesheet': load_animation_from_sequential_file('test_animation_sheet.png', cols=4),
     'tiles': {
-        1: rocks[0],
+        1: green_bush[-1],
         2: rocks[3],
-        3: red_bush[2],
+        3: red_bush[3],
+        4: green_bush[-2],
+        5: green_bush[3]
     },
     'map_seed':
     [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-        [1, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1],
-        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1],
-        [0, 3, 1, 2, 1, 1, 2, 0, 1, 3, 1],
-        [0, 3, 3, 2, 1, 1, 1, 0, 3, 3, 1],
-        [1, 1, 3, 1, 1, 1, 1, 3, 3, 1, 1]
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 2, 2, 2, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 2, 1, 1, 0, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [5, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 3, 1, 2, 1, 1, 2, 0, 1, 3, 1, 1, 1, 1, 1, 1, 1],
+        [0, 3, 3, 2, 1, 1, 1, 0, 3, 3, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 3, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 2, 2, 2, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [5, 2, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [4, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 2, 1, 2, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 2, 1, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 3, 1, 2, 1, 1, 2, 0, 1, 3, 1, 1, 1, 1, 1, 1, 1],
+        [0, 3, 3, 2, 1, 1, 1, 0, 3, 3, 1, 1, 1, 1, 1, 1, 1],
+        [5, 5, 3, 5, 5, 5, 5, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5],
+        [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
     ]
 }
