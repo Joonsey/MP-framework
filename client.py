@@ -44,6 +44,7 @@ class Game_client(pyglet.window.Window):
         self.npcs = {}
         self.tick = 0
         self.fps = 0
+        self.player.objects_to_collide_with = self.level.collision_tiles
 
 
         response = self.network.connect() # connecting to server
