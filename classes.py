@@ -1,5 +1,6 @@
 import pyglet
 from pyglet.window import key
+from pyglet import shapes
 
 from network import Network_client
 from tools import ASSET_DICT, TILE_SIZE
@@ -185,3 +186,21 @@ class Tile:
         if self.sprite:
             self.sprite.x = x
             self.sprite.y = y
+
+class Particle:
+    def __init__(self, xpos, ypos, velocity, lifespan,radius=3, color=(124,222,85), batch=None) -> None:
+        self.xpos = xpos
+        self.ypos = ypos
+        self.velocity = velocity
+        self.lifespan = lifespan
+        self.texture = shapes.Circle(xpos, ypos, radius=radius, color=color, batch=batch)
+        self.outer_texture = shapes.Circle(xpos, ypos, radius*4.5, batch=batch)
+        self.outer_texture.opacity = 25
+
+    def update_pos(self, x, y):
+        self.xpos = x
+        self.ypos = y
+        self.texture.x = x
+        self.texture.y = y
+        self.outer_texture.x = x
+        self.outer_texture.y = y

@@ -1,13 +1,14 @@
 from pyglet import image
 from sys import argv
 
+import random
 import threading
 import pyglet
 import sys
 import server
 
 from network import Network_client
-from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile
+from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile, Particle
 from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
 
 LEVEL_WIDTH = 32
@@ -37,11 +38,13 @@ class Game_client(pyglet.window.Window):
         self.player_batch = pyglet.graphics.Batch()
         self.level_batch = pyglet.graphics.Batch()
         self.ui_batch = pyglet.graphics.Batch()
+        self.particle_batch = pyglet.graphics.Batch()
         self.player = Player(player_img, 20, 30, self.player_batch)
         self.level = Level(LEVEL_WIDTH, LEVEL_HEIGHT)
         self.keyboard = pyglet.window.key.KeyStateHandler()
         self.push_handlers(self.keyboard)
         self.npcs = {}
+        self.particles = []
         self.tick = 0
         self.fps = 0
         self.player.objects_to_collide_with = self.level.collision_tiles
@@ -73,7 +76,6 @@ class Game_client(pyglet.window.Window):
             y = self.height-FONT_SIZE,
             batch=self.ui_batch
         )
-
 
         self.map_seed = ASSET_DICT['map_seed']
 
@@ -130,6 +132,7 @@ class Game_client(pyglet.window.Window):
         self.network.send(data)
         self.get_players()
 
+        self.spawn_random_default_particle()
         self.handle_client_inputs(self.keyboard)
 
     def handle_client_inputs(self, keyboard):
@@ -155,11 +158,33 @@ class Game_client(pyglet.window.Window):
             self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
 
+
+    def spawn_random_default_particle(self):
+        """
+        primairly for test purposes
+
+        spawns default particle and random location on screen
+        """
+        if random.randint(0,100) < 30:
+            randx = random.randint(0,self.width)
+            randy = random.randint(0,self.height)
+            self.particles.append(Particle(randx, randy,-5,10, batch=self.particle_batch))
+
+        for particle in self.particles:
+            new_xpos = particle.xpos + random.randint(particle.velocity,0)
+            new_ypos = particle.ypos + random.randint(particle.velocity,0)
+            particle.update_pos(new_xpos, new_ypos)
+            particle.lifespan -= .1
+            if particle.lifespan <= 0:
+                self.particles.pop(self.particles.index(particle))
+                del particle
+
     def draw(self, dt):
         """being called by the pyglet.clock"""
         self.clear()
         self.level_batch.draw()
         self.player_batch.draw()
+        self.particle_batch.draw()
         self.ui_batch.draw()
 
 
