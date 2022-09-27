@@ -8,7 +8,7 @@ import sys
 import server
 
 from network import Network_client
-from classes import CONST_MOVEMENT_SPEED, SPEED, Player, Physics_object, Level, Tile, Particle
+from classes import CONST_MOVEMENT_SPEED, SPEED, Moving_particle, Player, Physics_object, Level, Tile, Particle, Light_particle
 from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
 
 LEVEL_WIDTH = 32
@@ -168,7 +168,7 @@ class Game_client(pyglet.window.Window):
         if random.randint(0,100) < 30:
             randx = random.randint(0,self.width)
             randy = random.randint(0,self.height)
-            self.particles.append(Particle(randx, randy,-5,10, batch=self.particle_batch))
+            self.particles.append(Light_particle(randx, randy,-5, 10, batch=self.particle_batch))
 
         for particle in self.particles:
             new_xpos = particle.xpos + random.randint(particle.velocity,0)

@@ -194,13 +194,30 @@ class Particle:
         self.velocity = velocity
         self.lifespan = lifespan
         self.texture = shapes.Circle(xpos, ypos, radius=radius, color=color, batch=batch)
-        self.outer_texture = shapes.Circle(xpos, ypos, radius*4.5, batch=batch)
-        self.outer_texture.opacity = 25
 
     def update_pos(self, x, y):
         self.xpos = x
         self.ypos = y
         self.texture.x = x
         self.texture.y = y
+
+class Light_particle(Particle):
+    def __init__(self, xpos, ypos, velocity, lifespan, radius=3, color=(124, 222, 85), batch=None) -> None:
+        super().__init__(xpos, ypos, velocity, lifespan, radius, color, batch)
+        self.outer_texture = shapes.Circle(xpos, ypos, radius*4.5, batch=batch)
+        self.outer_texture.opacity = 25
+
+    def update_pos(self, x, y):
         self.outer_texture.x = x
         self.outer_texture.y = y
+        return super().update_pos(x, y)
+
+class Moving_particle(Particle):
+    def __init__(self, xpos, ypos, width, height, velocity, lifespan, color=(124, 222, 85), batch=None) -> None:
+        self.xpos = xpos
+        self.ypos = ypos
+        self.velocity = velocity
+        self.lifespan = lifespan
+        self.texture = shapes.Rectangle(xpos, ypos, width, height, color, batch=batch)
+
+
