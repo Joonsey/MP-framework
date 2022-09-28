@@ -16,8 +16,9 @@ from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
 LEVEL_WIDTH = 32
 LEVEL_HEIGHT = 32
 
-AMOUNT_OF_BYTES_IN_PACKET = 7 #THIS WILL EXPAND AS PACKET SIZE INCREASES
+AMOUNT_OF_BYTES_IN_PACKET = 9 #THIS WILL EXPAND AS PACKET SIZE INCREASES
 # SEE NETWORK ln 10:18 -> FOR REFERENCE!
+BYTEORDER = 'little'
 WIDTH = 1080
 HEIGHT = 720
 FPS = 120
@@ -48,7 +49,6 @@ class Game_client(pyglet.window.Window):
         self.push_handlers(self.keyboard)
         self.npcs = {}
         self.particles = []
-        self.tick = 0
         self.fps = 0
         self.player.objects_to_collide_with = self.level.collision_tiles
         self.fps_display_label = FPSDisplay(window=self)
@@ -83,30 +83,29 @@ class Game_client(pyglet.window.Window):
             #TODO REMINDER TO INCREMENT WITH I+index
             #literally forget this every time
             id = npcs[i]
-            x_coord = npcs[i+1]
-            y_coord = npcs[i+2]
-            color = npcs[i+3:i+6]
-            direction = npcs[i+6]
+            x_coord = int.from_bytes(npcs[i+1:i+3], BYTEORDER)
+            y_coord = int.from_bytes(npcs[i+3:i+5], BYTEORDER)
+            color = npcs[i+5:i+8]
+            direction = npcs[i+8]
 
             # supported data structure for color
             #color = b'\xff\x00\x00'
             #color = [0,0,255]
 
-            if id.to_bytes(1, 'little') == self.network.identifier:
+            if id.to_bytes(1, BYTEORDER) == self.network.identifier:
                 pass
             elif id not in self.npcs.keys():
                 self.npcs[id] = Player(player_img, x_coord * CONST_MOVEMENT_SPEED, y_coord * CONST_MOVEMENT_SPEED, batch = self.player_batch)
             else:
                 player   = self.npcs[id]
-                player.x = x_coord * CONST_MOVEMENT_SPEED
-                player.y = y_coord * CONST_MOVEMENT_SPEED
+                player.x = x_coord
+                player.y = y_coord
                 player.change_direction(direction)
                 player.set_color_from_bytes(color)
                 player.update_pos()
                 if player.physics_obj not in self.player.other_players: self.player.other_players.append(player.physics_obj)
 
     def update(self, dt):
-        self.tick = pyglet.clock.tick()
         self.fps = pyglet.clock.get_fps()
         self.debug_label.y = self.height - FONT_SIZE
         self.debug_label.x = self.width - self.debug_label.content_width
@@ -115,10 +114,10 @@ class Game_client(pyglet.window.Window):
 
         data = (
             self.network.identifier
-            + int(self.player.x / CONST_MOVEMENT_SPEED).to_bytes(1,'little')
-            + int(self.player.y / CONST_MOVEMENT_SPEED).to_bytes(1, 'little')
+            + int(self.player.x).to_bytes(2,BYTEORDER)
+            + int(self.player.y).to_bytes(2, BYTEORDER)
             + self.player.get_color_in_bytes()
-            + self.player.direction.to_bytes(1, 'little')
+            + self.player.direction.to_bytes(1, BYTEORDER)
         )
         #print(len(data)) #TODO KEEP THIS
         self.network.send(data)
