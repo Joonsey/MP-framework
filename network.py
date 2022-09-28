@@ -8,7 +8,7 @@ from tools import run_in_thread
 
 # NEW PACKET STRUCTURE BASED ON INDEXATION
 """
-[0 : identifier | 1 + 2: location | 3-6: color | 5 : special]
+[0 : identifier | 1+2, 3+4 : location | 5-8: color | 9 : special]
 
 i.e:
     - direction
