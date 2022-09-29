@@ -136,13 +136,9 @@ class Game_client(pyglet.window.Window):
         # FULLSCREEN
         if keyboard[pyglet.window.key.F11] and not self.fullscreen:
             self.set_fullscreen(True)
-            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
-            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
         elif keyboard[pyglet.window.key.F12] and self.fullscreen:
             self.set_fullscreen(False)
-            left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
-            self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
 
         if keyboard[pyglet.window.key.F]:
             left_padding, bottom_padding = get_padding_for_map(self.map_seed, self.width, self.height)
@@ -170,6 +166,7 @@ class Game_client(pyglet.window.Window):
                 self.particles.pop(self.particles.index(particle))
                 del particle
 
+
     def draw(self, dt):
         """being called by the pyglet.clock"""
         self.clear()
@@ -178,6 +175,11 @@ class Game_client(pyglet.window.Window):
         self.particle_batch.draw()
         self.ui_batch.draw()
         self.fps_display_label.draw()
+
+    def on_resize(self, width, height):
+        left_padding, bottom_padding = get_padding_for_map(self.map_seed, width, height)
+        self.level.update_level_pos_with_respect_to_padding(left_padding, bottom_padding)
+        return super().on_resize(width, height)
 
 
 
