@@ -5,6 +5,7 @@ from pyglet.resource import animation, image
 from pyglet.sprite import Sprite
 from _thread import start_new_thread
 
+BYTEORDER = 'little'
 TILE_SIZE = 32
 
 asset_folder_name = 'assets'

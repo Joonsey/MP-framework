@@ -1,8 +1,9 @@
 import socket
 import ast
 decoder = 'utf-8'
-from tools import PACKET_SIZE, GLOBAL_SERVER_IP
+from tools import PACKET_SIZE, GLOBAL_SERVER_IP, BYTEORDER
 from tools import run_in_thread
+
 
 
 
@@ -14,7 +15,13 @@ i.e:
     - direction
     - event
 """
-#NB subject to change
+class Packet:
+    def __init__(self, id, x, y, color, direction):
+        self.id = id
+        self.x = x
+        self.y = y
+        self.color = color
+        self.direction = direction
 
 class Network_client:
     def __init__(self, ip, port):
