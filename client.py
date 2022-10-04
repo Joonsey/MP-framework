@@ -9,16 +9,15 @@ import sys
 from pyglet.window import FPSDisplay
 import server
 
-from network import Network_client
+from network import Network_client, Packet
 from classes import CONST_MOVEMENT_SPEED, SPEED, Moving_particle, Player, Physics_object, Level, Tile, Particle, Light_particle
-from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE
+from tools import ASSET_DICT, PACKET_SIZE, get_padding_for_map, TILE_SIZE, BYTEORDER
 
 LEVEL_WIDTH = 32
 LEVEL_HEIGHT = 32
 
 AMOUNT_OF_BYTES_IN_PACKET = 9 #THIS WILL EXPAND AS PACKET SIZE INCREASES
 # SEE NETWORK ln 10:18 -> FOR REFERENCE!
-BYTEORDER = 'little'
 WIDTH = 1080
 HEIGHT = 720
 FPS = 120
@@ -80,28 +79,24 @@ class Game_client(pyglet.window.Window):
     def get_players(self):
         npcs = self.network.responses
         for i in range(0, len(npcs), AMOUNT_OF_BYTES_IN_PACKET):
-            #TODO REMINDER TO INCREMENT WITH I+index
-            #literally forget this every time
-            id = npcs[i]
-            x_coord = int.from_bytes(npcs[i+1:i+3], BYTEORDER)
-            y_coord = int.from_bytes(npcs[i+3:i+5], BYTEORDER)
-            color = npcs[i+5:i+8]
-            direction = npcs[i+8]
-
-            # supported data structure for color
-            #color = b'\xff\x00\x00'
-            #color = [0,0,255]
+            packet = Packet(
+                npcs[i],
+                int.from_bytes(npcs[i+1:i+3], BYTEORDER),
+                int.from_bytes(npcs[i+3:i+5], BYTEORDER),
+                npcs[i+5:i+8],
+                npcs[i+8])
+            id = packet.id
 
             if id.to_bytes(1, BYTEORDER) == self.network.identifier:
                 pass
             elif id not in self.npcs.keys():
-                self.npcs[id] = Player(player_img, x_coord * CONST_MOVEMENT_SPEED, y_coord * CONST_MOVEMENT_SPEED, batch = self.player_batch)
+                self.npcs[id] = Player(player_img, packet.x * CONST_MOVEMENT_SPEED, packet.x * CONST_MOVEMENT_SPEED, batch = self.player_batch)
             else:
                 player   = self.npcs[id]
-                player.x = x_coord
-                player.y = y_coord
-                player.change_direction(direction)
-                player.set_color_from_bytes(color)
+                player.x = packet.x
+                player.y = packet.y
+                player.set_color_from_bytes(packet.color)
+                player.change_direction(packet.direction)
                 player.update_pos()
                 if player.physics_obj not in self.player.other_players: self.player.other_players.append(player.physics_obj)
 
